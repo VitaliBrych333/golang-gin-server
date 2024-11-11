@@ -1,12 +1,12 @@
 package record
 
 import (
-	"fmt"
-	"log"
+    "fmt"
+    "log"
     "strconv"
-	"net/http"
-	"database/sql"
-	"github.com/gin-gonic/gin"
+    "net/http"
+    "database/sql"
+    "github.com/gin-gonic/gin"
 )
 
 type Record struct {
@@ -118,10 +118,10 @@ func updateRecordById(context *gin.Context) {
 
     intId, err := strconv.Atoi(id)
 
-	if err != nil {
-		fmt.Println("Error during conversion")
-		return
-	}
+    if err != nil {
+        fmt.Println("Error during conversion")
+        return
+    }
 
     newInfoRecord.Id = intId
 

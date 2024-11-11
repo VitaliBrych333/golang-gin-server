@@ -1,8 +1,6 @@
 package main
 
 import (
-    "github.com/VitaliBrych333/golang-gin-server/routers"
-    // "go_gin_server/routers"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,6 +13,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
 	"github.com/golang-jwt/jwt/v5"
+
+    "github.com/VitaliBrych333/golang-gin-server/routers/record"
+    "github.com/VitaliBrych333/golang-gin-server/routers/user"
 )
 
 // data definitions
@@ -387,7 +388,7 @@ func verifyToken(tokenString string) (*jwt.Token, error) {
 //     context.Redirect(http.StatusMovedPermanently, "/users")
 // }
 
-// func registerUser(context *gin.Context) {
-//     addUserInDB(context)
-//     context.Redirect(http.StatusMovedPermanently, "/login")
-// }
+func registerUser(context *gin.Context) {
+    addUserInDB(context)
+    context.Redirect(http.StatusMovedPermanently, "/login")
+}
