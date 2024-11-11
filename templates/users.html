@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link href="/static/css/users.css" rel="stylesheet" type="text/css">
+        <title>Users</title>
+    </head>
+    <body>
+       
+        <a href="/logout">Logout</a>
+
+        <table>
+            <thead>
+                <th>Id</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Password</th>
+                <th>Role</th>
+                <th>Info</th>
+                <th>Edit</th>
+            </thead>
+            {{range . }}
+            <tr>
+                <td>{{.Id}}</td>
+                <td>{{.First_Name}}</td>
+                <td>{{.Last_Name}}</td>
+                <td>{{.Email}}</td>
+                <td>{{.Password}}</td>
+                <td>{{.Role}}</td>
+                <td>{{.Info}}</td>
+                <td>                    
+                    <!-- <a href="/edit/{{.Id}}">Edit</a> -->
+                    <a href="/user/{{.Id}}">Edit</a>
+                    <a href="/delete/{{.Id}}">Delete</a>
+                </td>
+            </tr>
+            {{end}}
+        </table>
+
+        <form action="/newUser" method="get" enctype="multipart/form-data">
+            <input type="submit" value="Create">
+        </form>
+    </body>
+</html>

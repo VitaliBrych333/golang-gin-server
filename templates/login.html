@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Form User</title>
+</head>
+<body>
+    <h1>Authentication</h1>
+    <form action="/login" method="post" enctype="multipart/form-data">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" value="{{.Email}}"><br><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" value="{{.Password}}"><br><br>
+
+        <input type="submit" value="Login">
+    </form>
+
+    <a href="/register">Register</a>
+
+    <!-- <a href="/users">Cancel</a> -->
+</body>
+</html>

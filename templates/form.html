@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Form User</title>
+</head>
+<body>
+{{if eq .Title "Edit" }}
+    <h1>Edit User Id {{.Id}}</h1>
+    <form action="/user/{{.Id}}" method="post" enctype="multipart/form-data">
+{{else if eq .Title "Register"}}
+    <h1>{{.Title}}</h1>
+    <form action="/register" method="post" enctype="multipart/form-data">
+{{else}}        
+    <h1>{{.Title}}</h1>
+    <form action="/user" method="post" enctype="multipart/form-data">
+{{end}}
+        <label for="first_name">First Name:</label>
+        <input type="text" id="first_name" name="first_name" value="{{.First_Name}}"><br><br>
+        <label for="last_name">Last Name:</label>
+        <input type="text" id="last_name" name="last_name" value="{{.Last_Name}}"><br><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" value="{{.Email}}"><br><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" value="{{.Password}}"><br><br>
+
+        <label for="role">Role:</label>
+        <input type="text" id="role" name="role" value="{{.Role}}"><br><br>
+
+        <label for="info">Info:</label>
+        <textarea id="info" name="info" rows="5" cols="30">{{.Info}}</textarea>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <a href="/users">Cancel</a>
+</body>
+</html>
