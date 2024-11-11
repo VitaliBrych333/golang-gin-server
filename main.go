@@ -175,7 +175,7 @@ func main() {
 func handleLogin(context *gin.Context) {
     email := context.PostForm("email")
 	password := context.PostForm("password")
-    users := getUsers(context)
+    users := user.getUsers(context)
 
     idx := slices.IndexFunc(users, func(u User) bool { return u.Email == email && u.Password == password })
 

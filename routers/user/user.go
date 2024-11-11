@@ -96,7 +96,7 @@ func Routes(route *gin.Engine, authenticateMiddleware gin.HandlerFunc) {
 
 // }
 
-func getUsers(context *gin.Context) []User {
+func GetUsers(context *gin.Context) []User {
     db := context.MustGet("DB").(*sql.DB)
     rows, err := db.Query("select * from Users")
 
