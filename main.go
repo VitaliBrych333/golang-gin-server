@@ -1,8 +1,8 @@
 package main
 
 import (
-    // "github.com/VitaliBrych333/go_gin_server/routers/record"
-    "go_gin_server/routers"
+    "github.com/VitaliBrych333/golang-gin-server/routers"
+    // "go_gin_server/routers"
 	"fmt"
 	"log"
 	"net/http"
@@ -22,22 +22,6 @@ type person struct {
     ID   string `json:"id"`
     Name string `json:"name"`
 }
-
-// people slice to seed record person data.
-// var people = []person{
-//     {
-//         ID:   "1",
-//         Name: "ABC",
-//     },
-//     {
-//         ID:   "2",
-//         Name: "DEF",
-//     },
-//     {
-//         ID:   "3",
-//         Name: "GHI",
-//     },
-// }
 
 type User struct {
     Id           int     `json:"id"`
@@ -125,51 +109,7 @@ func main() {
     server.GET("/login", func(context *gin.Context) {
         context.HTML(http.StatusOK, "login.html", nil)
     })
-
     server.POST("/login", handleLogin)
-
-    record.Routes(server, authenticateMiddleware)
-
-    // server.GET("/", func(c *gin.Context) {
-	// 	c.HTML(http.StatusOK, "users.html", gin.H{
-	// 		// "Todos":    todos,
-	// 		"LoggedIn": loggedInUser != "",
-	// 		"Email": loggedInUser,
-	// 		"Role": getRole(loggedInUser),
-	// 	})
-	// })
-
-
-    server.GET("/", func(context *gin.Context) {
-        context.Redirect(http.StatusMovedPermanently, "/users")
-    })
-
-    // server.GET("/", func(context *gin.Context) {
-    //     context.Redirect(http.StatusMovedPermanently, "/login")
-    // })
-
-    // server.GET("/users", authenticateMiddleware, getUsers)
-    server.GET("/users", authenticateMiddleware, getUsersPage)
-    server.GET("/user/:id", authenticateMiddleware, getUserById)
-
-    server.GET("/newUser", authenticateMiddleware, func(context *gin.Context) {
-        context.HTML(http.StatusOK, "form.html", gin.H{
-            "Title": "New User",
-        })
-    })
-    server.POST("/user", authenticateMiddleware, addUser)
-
-
-    // server.PUT("/edit/:id", updateUserById)
-    // server.GET("/edit/:id", getUserById)
-    // server.POST("/edit/:id", updateUserById)
-
-    server.PUT("/user/:id", authenticateMiddleware, updateUserById)
-    server.POST("/user/:id", authenticateMiddleware, updateUserById)
-
-
-    server.DELETE("/delete/:id", authenticateMiddleware, deleteUserById)
-    server.GET("/delete/:id", authenticateMiddleware, deleteUserById)
 
     server.GET("/logout", func(context *gin.Context) {
         loggedInUser = ""
@@ -183,6 +123,50 @@ func main() {
         })
     })
     server.POST("/register", registerUser)
+
+    user.Routes(server, authenticateMiddleware)
+    record.Routes(server, authenticateMiddleware)
+
+    // server.GET("/", func(c *gin.Context) {
+	// 	c.HTML(http.StatusOK, "users.html", gin.H{
+	// 		// "Todos":    todos,
+	// 		"LoggedIn": loggedInUser != "",
+	// 		"Email": loggedInUser,
+	// 		"Role": getRole(loggedInUser),
+	// 	})
+	// })
+
+
+    // server.GET("/", func(context *gin.Context) {
+    //     context.Redirect(http.StatusMovedPermanently, "/users")
+    // })
+
+    // // server.GET("/", func(context *gin.Context) {
+    // //     context.Redirect(http.StatusMovedPermanently, "/login")
+    // // })
+
+    // // server.GET("/users", authenticateMiddleware, getUsers)
+    // server.GET("/users", authenticateMiddleware, getUsersPage)
+    // server.GET("/user/:id", authenticateMiddleware, getUserById)
+
+    // server.GET("/newUser", authenticateMiddleware, func(context *gin.Context) {
+    //     context.HTML(http.StatusOK, "form.html", gin.H{
+    //         "Title": "New User",
+    //     })
+    // })
+    // server.POST("/user", authenticateMiddleware, addUser)
+
+
+    // // server.PUT("/edit/:id", updateUserById)
+    // // server.GET("/edit/:id", getUserById)
+    // // server.POST("/edit/:id", updateUserById)
+
+    // server.PUT("/user/:id", authenticateMiddleware, updateUserById)
+    // server.POST("/user/:id", authenticateMiddleware, updateUserById)
+
+
+    // server.DELETE("/delete/:id", authenticateMiddleware, deleteUserById)
+    // server.GET("/delete/:id", authenticateMiddleware, deleteUserById)
 
     server.Run(":8081") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")    
 }
@@ -286,124 +270,124 @@ func verifyToken(tokenString string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func getUsers(context *gin.Context) []User {
-    db := context.MustGet("DB").(*sql.DB)
-    rows, err := db.Query("select * from Users")
+// func getUsers(context *gin.Context) []User {
+//     db := context.MustGet("DB").(*sql.DB)
+//     rows, err := db.Query("select * from Users")
 
-    if err != nil {
-        panic(err)
-    }
+//     if err != nil {
+//         panic(err)
+//     }
 
-    users := []User{}
+//     users := []User{}
      
-    for rows.Next() {
-        user := User{}
-        err := rows.Scan(&user.Id, &user.First_Name, &user.Last_Name, &user.Email, &user.Password, &user.Role, &user.Info)
+//     for rows.Next() {
+//         user := User{}
+//         err := rows.Scan(&user.Id, &user.First_Name, &user.Last_Name, &user.Email, &user.Password, &user.Role, &user.Info)
 
-        if err != nil {
-            log.Fatalf("impossible to scan rows of query: %s", err)
-            fmt.Println("error", err)
-            continue
-        }
+//         if err != nil {
+//             log.Fatalf("impossible to scan rows of query: %s", err)
+//             fmt.Println("error", err)
+//             continue
+//         }
 
-        users = append(users, user)
-    }
+//         users = append(users, user)
+//     }
 
-    fmt.Printf("%#v", users)
+//     fmt.Printf("%#v", users)
 
-   return users
-}
+//    return users
+// }
 
-func getUsersPage(context *gin.Context) {
-    users := getUsers(context)
-    context.HTML(http.StatusOK, "users.html", users)
-}
+// func getUsersPage(context *gin.Context) {
+//     users := getUsers(context)
+//     context.HTML(http.StatusOK, "users.html", users)
+// }
 
-func getUserById(context *gin.Context) {
-    id := context.Param("id")
-    db := context.MustGet("DB").(*sql.DB)
+// func getUserById(context *gin.Context) {
+//     id := context.Param("id")
+//     db := context.MustGet("DB").(*sql.DB)
 
-    row := db.QueryRow("select * from Users where id = ?", id)
+//     row := db.QueryRow("select * from Users where id = ?", id)
 
-    form := FormInfo{}
-    err := row.Scan(&form.Id, &form.First_Name, &form.Last_Name, &form.Email, &form.Password, &form.Role, &form.Info)
+//     form := FormInfo{}
+//     err := row.Scan(&form.Id, &form.First_Name, &form.Last_Name, &form.Email, &form.Password, &form.Role, &form.Info)
 
-    if err != nil {
-        panic(err)
-    }
+//     if err != nil {
+//         panic(err)
+//     }
 
-    form.Title = "Edit"
+//     form.Title = "Edit"
 
-    context.HTML(http.StatusOK, "form.html", form)
-}
+//     context.HTML(http.StatusOK, "form.html", form)
+// }
 
-func addUserInDB(context *gin.Context) {
-    db := context.MustGet("DB").(*sql.DB)
+// func addUserInDB(context *gin.Context) {
+//     db := context.MustGet("DB").(*sql.DB)
 
-    firstName := context.PostForm("first_name")
-    lastName := context.PostForm("last_name")
-    email := context.PostForm("email")
-    password := context.PostForm("password")
-    role := context.PostForm("role")
-    info := context.PostForm("info")
+//     firstName := context.PostForm("first_name")
+//     lastName := context.PostForm("last_name")
+//     email := context.PostForm("email")
+//     password := context.PostForm("password")
+//     role := context.PostForm("role")
+//     info := context.PostForm("info")
 
 
-    result, err := db.Exec("insert into Users (First_Name, Last_Name, Email, Password, Role, Info ) values (?, ?, ?, ?, ?, ?)", firstName, lastName, email, password, role, info)
+//     result, err := db.Exec("insert into Users (First_Name, Last_Name, Email, Password, Role, Info ) values (?, ?, ?, ?, ?, ?)", firstName, lastName, email, password, role, info)
 
-    if err != nil{
-        panic(err)
-    }
+//     if err != nil{
+//         panic(err)
+//     }
 
-    fmt.Println(result.LastInsertId())  // id added
-    fmt.Println(result.RowsAffected())  // count affected rows
-}
+//     fmt.Println(result.LastInsertId())  // id added
+//     fmt.Println(result.RowsAffected())  // count affected rows
+// }
 
-func addUser(context *gin.Context) {
-    addUserInDB(context)
-    context.Redirect(http.StatusMovedPermanently, "/users")
-}
+// func addUser(context *gin.Context) {
+//     addUserInDB(context)
+//     context.Redirect(http.StatusMovedPermanently, "/users")
+// }
 
-func updateUserById(context *gin.Context) {
-    id := context.Param("id")
-    db := context.MustGet("DB").(*sql.DB)
+// func updateUserById(context *gin.Context) {
+//     id := context.Param("id")
+//     db := context.MustGet("DB").(*sql.DB)
 
-    firstName := context.PostForm("first_name")
-    lastName := context.PostForm("last_name")
-    email := context.PostForm("email")
-    password := context.PostForm("password")
-    role := context.PostForm("role")
-    info := context.PostForm("info") 
+//     firstName := context.PostForm("first_name")
+//     lastName := context.PostForm("last_name")
+//     email := context.PostForm("email")
+//     password := context.PostForm("password")
+//     role := context.PostForm("role")
+//     info := context.PostForm("info") 
 
-    result, err := db.Exec("update Users set First_Name = ?, Last_Name = ?, Email = ?, Password = ?, Role = ?, Info = ? where id = ?",
-        firstName, lastName, email, password, role, info, id)
+//     result, err := db.Exec("update Users set First_Name = ?, Last_Name = ?, Email = ?, Password = ?, Role = ?, Info = ? where id = ?",
+//         firstName, lastName, email, password, role, info, id)
     
-    if err != nil{
-        panic(err)
-    }
+//     if err != nil{
+//         panic(err)
+//     }
 
-    fmt.Println(result.LastInsertId())  // id updated
-    fmt.Println(result.RowsAffected())  // count affected rows
+//     fmt.Println(result.LastInsertId())  // id updated
+//     fmt.Println(result.RowsAffected())  // count affected rows
 
-    context.Redirect(http.StatusMovedPermanently, "/users")
-}
+//     context.Redirect(http.StatusMovedPermanently, "/users")
+// }
 
-func deleteUserById(context *gin.Context) {
-    id := context.Param("id")
-    db := context.MustGet("DB").(*sql.DB)
+// func deleteUserById(context *gin.Context) {
+//     id := context.Param("id")
+//     db := context.MustGet("DB").(*sql.DB)
 
-    result, err := db.Exec("delete from Users where id = ?", id)
+//     result, err := db.Exec("delete from Users where id = ?", id)
 
-    if err != nil{
-        panic(err)
-    }
+//     if err != nil{
+//         panic(err)
+//     }
 
-    fmt.Println(result.LastInsertId())  // id deleted
-    fmt.Println(result.RowsAffected())  // count affected rows
+//     fmt.Println(result.LastInsertId())  // id deleted
+//     fmt.Println(result.RowsAffected())  // count affected rows
 
-    context.Redirect(http.StatusMovedPermanently, "/users")
-}
+//     context.Redirect(http.StatusMovedPermanently, "/users")
+// }
 
-func registerUser(context *gin.Context) {
-    addUserInDB(context)
-    context.Redirect(http.StatusMovedPermanently, "/login")
-}
+// func registerUser(context *gin.Context) {
+//     addUserInDB(context)
+//     context.Redirect(http.StatusMovedPermanently, "/login")
+// }
