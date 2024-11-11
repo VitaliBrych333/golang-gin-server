@@ -138,9 +138,9 @@ func main() {
 	// })
 
 
-    // server.GET("/", func(context *gin.Context) {
-    //     context.Redirect(http.StatusMovedPermanently, "/users")
-    // })
+    server.GET("/", func(context *gin.Context) {
+        context.Redirect(http.StatusMovedPermanently, "/users")
+    })
 
     // // server.GET("/", func(context *gin.Context) {
     // //     context.Redirect(http.StatusMovedPermanently, "/login")
@@ -175,9 +175,9 @@ func main() {
 func handleLogin(context *gin.Context) {
     email := context.PostForm("email")
 	password := context.PostForm("password")
-    users := user.getUsers(context)
+    users := user.GetUsers(context)
 
-    idx := slices.IndexFunc(users, func(u User) bool { return u.Email == email && u.Password == password })
+    idx := slices.IndexFunc(users, func(u user.User) bool { return u.Email == email && u.Password == password })
 
 	if (idx != -1) {
 		tokenString, err := createToken(email)
@@ -389,6 +389,6 @@ func verifyToken(tokenString string) (*jwt.Token, error) {
 // }
 
 func registerUser(context *gin.Context) {
-    addUserInDB(context)
+    user.AddUserInDB(context)
     context.Redirect(http.StatusMovedPermanently, "/login")
 }

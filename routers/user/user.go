@@ -125,7 +125,7 @@ func GetUsers(context *gin.Context) []User {
 }
 
 func getUsersPage(context *gin.Context) {
-    users := getUsers(context)
+    users := GetUsers(context)
     context.HTML(http.StatusOK, "users.html", users)
 }
 
@@ -147,7 +147,7 @@ func getUserById(context *gin.Context) {
     context.HTML(http.StatusOK, "form.html", form)
 }
 
-func addUserInDB(context *gin.Context) {
+func AddUserInDB(context *gin.Context) {
     db := context.MustGet("DB").(*sql.DB)
 
     firstName := context.PostForm("first_name")
@@ -169,7 +169,7 @@ func addUserInDB(context *gin.Context) {
 }
 
 func addUser(context *gin.Context) {
-    addUserInDB(context)
+    AddUserInDB(context)
     context.Redirect(http.StatusMovedPermanently, "/users")
 }
 
@@ -211,9 +211,4 @@ func deleteUserById(context *gin.Context) {
     fmt.Println(result.RowsAffected())  // count affected rows
 
     context.Redirect(http.StatusMovedPermanently, "/users")
-}
-
-func registerUser(context *gin.Context) {
-    addUserInDB(context)
-    context.Redirect(http.StatusMovedPermanently, "/login")
 }
