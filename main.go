@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bytes"
+	// "bytes"
 	"fmt"
-	"io"
+	// "io"
 	"log"
-    "strconv"
+    // "strconv"
 	// "mime/multipart"
 	"net/http"
 	"slices"
@@ -19,10 +19,10 @@ import (
 	// "github.com/gin-contrib/cors"
 	"github.com/go-sql-driver/mysql"
 	"github.com/golang-jwt/jwt/v5"
-
+    "github.com/VitaliBrych333/golang-gin-server/routers/documents"
 	"github.com/VitaliBrych333/golang-gin-server/routers/record"
 	"github.com/VitaliBrych333/golang-gin-server/routers/user"
-	"github.com/go-pdf/fpdf"
+	// "github.com/go-pdf/fpdf"
 )
 
 // data definitions
@@ -59,17 +59,17 @@ type FormInfo struct {
 //     Info         string  `json:"info"`
 // }
 
-type Document struct {
-    Id           int     `form:"id"`
-    User_Id      string  `form:"userId"`
-    Name_Doc     string  `form:"name"`
-    File         []byte  `form:"file"`
-    Info         string  `form:"info"`
+// type Document struct {
+//     Id           int     `form:"id"`
+//     User_Id      string  `form:"userId"`
+//     Name_Doc     string  `form:"name"`
+//     File         []byte  `form:"file"`
+//     Info         string  `form:"info"`
 
 
-//      Name  string `form:"name" binding:"required"`
-//  Email string `form:"email" binding:"required,email"`
-}
+// //      Name  string `form:"name" binding:"required"`
+// //  Email string `form:"email" binding:"required,email"`
+// }
 
 // type Docs struct {
 //     // Id           int    `json:"id"`
@@ -194,14 +194,11 @@ func main() {
     server.POST("/register", registerUser)
 
 
-    server.GET("/document/createNew", handleCreate)
+    // server.GET("/documents/createNew", handleCreate)
 
-    server.POST("/document/save", handleSave)
+    // server.POST("/documents/save", handleSave)
 
-
-    server.GET("/documents", getDocuments)
-
-
+    documents.Routes(server, authenticateMiddleware)
     user.Routes(server, authenticateMiddleware)
     record.Routes(server, authenticateMiddleware)
 
@@ -249,117 +246,90 @@ func main() {
     server.Run(":8081") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")    
 }
 
-func getDocuments(context *gin.Context) {
-    id := context.Query("userId")
-    db := context.MustGet("DB").(*sql.DB)
-    rows, err := db.Query("select * from Documents where User_Id = ?", id)
+// func handleCreate(context *gin.Context) {
+// 	nameDoc := context.Query("nameDoc")
+//     textDoc := context.Query("textDoc")
 
-    if err != nil {
-        panic(err)
-    }
+//     var b bytes.Buffer
+//     pw := io.Writer(&b)
+//     pr := io.Reader(&b)
 
-    documents := []Doc{}
-     
-    for rows.Next() {
-        document := Doc{}
-        err := rows.Scan(&document.Id, &document.User_Id, &document.Name_Doc, &document.File, &document.Info)
-
-        if err != nil {
-            log.Fatalf("impossible to scan rows of query: %s", err)
-            fmt.Println("error", err)
-            continue
-        }
-
-        documents = append(documents, document)
-    }
-
-   context.JSON(http.StatusOK, documents)
-}
-
-func handleCreate(context *gin.Context) {
-	nameDoc := context.Query("nameDoc")
-    textDoc := context.Query("textDoc")
-
-    var b bytes.Buffer
-    pw := io.Writer(&b)
-    pr := io.Reader(&b)
-
-    pdf := fpdf.New("P", "mm", "A4", "")
-    pdf.AddPage()
-    pdf.SetFont("Arial", "B", 16)
-    pdf.Cell(40, 10, textDoc)
+//     pdf := fpdf.New("P", "mm", "A4", "")
+//     pdf.AddPage()
+//     pdf.SetFont("Arial", "B", 16)
+//     pdf.Cell(40, 10, textDoc)
 
 
-    fmt.Printf("handleCreate--------------11111111111---nameDoc: %s\n", nameDoc)
-    fmt.Printf("handleCreate--------------11111111111---textDoc: %s\n",  textDoc)
+//     fmt.Printf("handleCreate--------------11111111111---nameDoc: %s\n", nameDoc)
+//     fmt.Printf("handleCreate--------------11111111111---textDoc: %s\n",  textDoc)
 
-    // if err := pdf.OutputFileAndClose(nameDoc + ".pdf"); err != nil {
-    //     return
-    // }
+//     // if err := pdf.OutputFileAndClose(nameDoc + ".pdf"); err != nil {
+//     //     return
+//     // }
 
-    err := pdf.Output(pw)
-    if err != nil {
-        fmt.Println(err)
-        return
-    }
+//     err := pdf.Output(pw)
+//     if err != nil {
+//         fmt.Println(err)
+//         return
+//     }
 
-    // if err := pdf.OutputAndClose(nameDoc + ".pdf"); err != nil {
-    //     return
-    // }
+//     // if err := pdf.OutputAndClose(nameDoc + ".pdf"); err != nil {
+//     //     return
+//     // }
 
-    context.Writer.Header().Set("Content-Type", "application/pdf")
-
-
-    resPDF, _ := io.ReadAll(pr)
-    context.Writer.Write(resPDF)
-    // w.Write(resPDF)
+//     context.Writer.Header().Set("Content-Type", "application/pdf")
 
 
-    // pdf.Output(context)
-    // pdf.OutputFileAndClose()
+//     resPDF, _ := io.ReadAll(pr)
+//     context.Writer.Write(resPDF)
+//     // w.Write(resPDF)
 
-    // context.File(nameDoc + ".pdf")
+
+//     // pdf.Output(context)
+//     // pdf.OutputFileAndClose()
+
+//     // context.File(nameDoc + ".pdf")
 
 
 
 
 
 
-    // logUser := User{}
+//     // logUser := User{}
 
-    // if err := context.BindJSON(&logUser); err != nil {
-    //     return
-    // }
+//     // if err := context.BindJSON(&logUser); err != nil {
+//     //     return
+//     // }
 
-    // users := user.GetUsers(context)
+//     // users := user.GetUsers(context)
 
-    // fmt.Printf("users--------", users)
+//     // fmt.Printf("users--------", users)
 
-    // idx := slices.IndexFunc(users, func(u user.User) bool { return u.Email == logUser.Email && u.Password == logUser.Password })
+//     // idx := slices.IndexFunc(users, func(u user.User) bool { return u.Email == logUser.Email && u.Password == logUser.Password })
 
-    // fmt.Printf("idx ", idx )
+//     // fmt.Printf("idx ", idx )
 
-	// if (idx != -1) {
-	// 	tokenString, err := createToken(logUser.Email)
+// 	// if (idx != -1) {
+// 	// 	tokenString, err := createToken(logUser.Email)
 
-	// 	if err != nil {
-	// 		context.String(http.StatusInternalServerError, "Error creating token")
-	// 		return
-	// 	}
+// 	// 	if err != nil {
+// 	// 		context.String(http.StatusInternalServerError, "Error creating token")
+// 	// 		return
+// 	// 	}
 
-	// 	loggedInUser = logUser.Email
-	// 	fmt.Printf("Token created: %s\n", tokenString)
-	// 	context.SetCookie("token", tokenString, 3600, "/", "localhost", false, true) // need to change form locahost on domain
+// 	// 	loggedInUser = logUser.Email
+// 	// 	fmt.Printf("Token created: %s\n", tokenString)
+// 	// 	context.SetCookie("token", tokenString, 3600, "/", "localhost", false, true) // need to change form locahost on domain
 
-    //     // context.JSON(http.StatusOK, tokenString)
-    //     context.JSON(http.StatusOK, "Success")
+//     //     // context.JSON(http.StatusOK, tokenString)
+//     //     context.JSON(http.StatusOK, "Success")
 
-	// 	// context.Redirect(http.StatusSeeOther, "/")
-    //     // context.Redirect(http.StatusSeeOther, "/users")
-	// } else {
-	// 	context.String(http.StatusUnauthorized, "Invalid credentials")
-	// }
-}
+// 	// 	// context.Redirect(http.StatusSeeOther, "/")
+//     //     // context.Redirect(http.StatusSeeOther, "/users")
+// 	// } else {
+// 	// 	context.String(http.StatusUnauthorized, "Invalid credentials")
+// 	// }
+// }
 
 // func GetRawData(context *gin.Context) ([]byte, error) {
 // 	body := context.Request.Body
@@ -367,50 +337,50 @@ func handleCreate(context *gin.Context) {
 // }
 
 
-func handleSave(context *gin.Context) {
-    db := context.MustGet("DB").(*sql.DB)
+// func handleSave(context *gin.Context) {
+//     db := context.MustGet("DB").(*sql.DB)
 
-    form, _ := context.MultipartForm()
+//     form, _ := context.MultipartForm()
 
-    userIds := form.Value["userIds[]"]
-	names := form.Value["names[]"]
-    files := form.File["files[]"]
-    info := form.Value["info[]"]
+//     userIds := form.Value["userIds[]"]
+// 	names := form.Value["names[]"]
+//     files := form.File["files[]"]
+//     info := form.Value["info[]"]
 
-    ids := []int{}
+//     ids := []int{}
 
-    for index, userId := range userIds {
-        document := Document{}
+//     for index, userId := range userIds {
+//         document := Document{}
 
-        fileContent, _ := files[index].Open()
-        byteContainer, _ := io.ReadAll(fileContent)
-        document.File = byteContainer;
+//         fileContent, _ := files[index].Open()
+//         byteContainer, _ := io.ReadAll(fileContent)
+//         document.File = byteContainer;
 
-        document.User_Id = userId
-        document.Name_Doc = names[index]
-        document.Info = info[index]
+//         document.User_Id = userId
+//         document.Name_Doc = names[index]
+//         document.Info = info[index]
 
-        result, err := db.Exec("insert into Documents (User_Id, Name_Doc, File, Info) values (?, ?, ?, ?)", document.User_Id, document.Name_Doc, document.File, document.Info)
+//         result, err := db.Exec("insert into Documents (User_Id, Name_Doc, File, Info) values (?, ?, ?, ?)", document.User_Id, document.Name_Doc, document.File, document.Info)
 
-        if err != nil{
-            panic(err)
-        }
+//         if err != nil{
+//             panic(err)
+//         }
 
-        id, err := result.LastInsertId()
+//         id, err := result.LastInsertId()
 
-        if err != nil {
-            fmt.Printf("Save document: %v", err)
-        }
+//         if err != nil {
+//             fmt.Printf("Save document: %v", err)
+//         }
 
-        // fmt.Println(result.LastInsertId())  // id added
-        // fmt.Println(result.RowsAffected())  // count affected rows
+//         // fmt.Println(result.LastInsertId())  // id added
+//         // fmt.Println(result.RowsAffected())  // count affected rows
 
-        ids = append(ids, int(id))
-	}
+//         ids = append(ids, int(id))
+// 	}
 
-    context.JSON(http.StatusCreated, strconv.Itoa(len(ids)) + " document(s) were added in DB")
-    // context.JSON(http.StatusCreated, ids)
-}
+//     context.JSON(http.StatusCreated, strconv.Itoa(len(ids)) + " document(s) were added in DB")
+//     // context.JSON(http.StatusCreated, ids)
+// }
 
 func handleLogin(context *gin.Context) {
     // email := context.PostForm("email")
