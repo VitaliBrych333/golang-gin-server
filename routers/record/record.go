@@ -22,7 +22,7 @@ func Routes(route *gin.Engine, authenticateMiddleware gin.HandlerFunc) {
     record := route.Group("record", authenticateMiddleware)
     {
         record.GET("/:id", getRecordById)
-        record.POST("/", addRecord)
+        record.POST("", addRecord)
         record.PUT("/:id", updateRecordById)
         route.DELETE("/:id", deleteRecordById)
     }

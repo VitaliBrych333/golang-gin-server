@@ -38,10 +38,11 @@ func Routes(route *gin.Engine, authenticateMiddleware gin.HandlerFunc) {
         })
     })
 
-    user := route.Group("user", authenticateMiddleware)
+    // user := route.Group("user", authenticateMiddleware)
+    user := route.Group("user")
     {
         user.GET("/:id", getUserById)
-        user.POST("/", addUser)
+        user.POST("", addUser)
 
         user.PUT("/:id", updateUserById)
         user.POST("/:id", updateUserById)
@@ -119,7 +120,7 @@ func GetUsers(context *gin.Context) []User {
         users = append(users, user)
     }
 
-    fmt.Printf("%#v", users)
+    // fmt.Printf("%#v", users)
 
    return users
 }
@@ -149,28 +150,43 @@ func getUserById(context *gin.Context) {
 
 func AddUserInDB(context *gin.Context) {
     db := context.MustGet("DB").(*sql.DB)
+    newUser := User{}
 
-    firstName := context.PostForm("first_name")
-    lastName := context.PostForm("last_name")
-    email := context.PostForm("email")
-    password := context.PostForm("password")
-    role := context.PostForm("role")
-    info := context.PostForm("info")
+    if err := context.BindJSON(&newUser); err != nil {
+        return
+    }
 
+    // firstName := context.PostForm("first_name")
+    // lastName := context.PostForm("last_name")
+    // email := context.PostForm("email")
+    // password := context.PostForm("password")
+    // role := context.PostForm("role")
+    // info := context.PostForm("info")
 
-    result, err := db.Exec("insert into Users (First_Name, Last_Name, Email, Password, Role, Info ) values (?, ?, ?, ?, ?, ?)", firstName, lastName, email, password, role, info)
+    // result, err := db.Exec("insert into Users (First_Name, Last_Name, Email, Password, Role, Info ) values (?, ?, ?, ?, ?, ?)", firstName, lastName, email, password, role, info)
+
+    result, err := db.Exec("insert into Users (First_Name, Last_Name, Email, Password, Role, Info ) values (?, ?, ?, ?, ?, ?)", newUser.First_Name, newUser.Last_Name, newUser.Email, newUser.Password, newUser.Role, newUser.Info)
 
     if err != nil{
         panic(err)
     }
 
+    id, err := result.LastInsertId()
+    if err != nil {
+        fmt.Printf("Add User: %v", err)
+    }
+
+    newUser.Id = int(id)
+
     fmt.Println(result.LastInsertId())  // id added
     fmt.Println(result.RowsAffected())  // count affected rows
+
+    context.JSON(http.StatusCreated, newUser)
 }
 
 func addUser(context *gin.Context) {
     AddUserInDB(context)
-    context.Redirect(http.StatusMovedPermanently, "/users")
+    // context.Redirect(http.StatusMovedPermanently, "/users")
 }
 
 func updateUserById(context *gin.Context) {
