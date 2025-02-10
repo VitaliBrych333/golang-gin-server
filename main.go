@@ -5,7 +5,7 @@ import (
 	"fmt"
 	// "io"
 	"log"
-    // "strconv"
+	// "strconv"
 	// "mime/multipart"
 	"net/http"
 	"slices"
@@ -17,28 +17,28 @@ import (
 	// "encoding/json"
 	"github.com/gin-gonic/gin"
 	// "github.com/gin-contrib/cors"
-	"github.com/go-sql-driver/mysql"
-	"github.com/golang-jwt/jwt/v5"
-    "github.com/VitaliBrych333/golang-gin-server/routers/documents"
+	"github.com/VitaliBrych333/golang-gin-server/routers/documents"
 	"github.com/VitaliBrych333/golang-gin-server/routers/record"
 	"github.com/VitaliBrych333/golang-gin-server/routers/user"
+	"github.com/go-sql-driver/mysql"
+	"github.com/golang-jwt/jwt/v5"
 	// "github.com/go-pdf/fpdf"
 )
 
 // data definitions
 type person struct {
-    ID   string `json:"id"`
-    Name string `json:"name"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type User struct {
-    Id           int     `json:"id"`
-    First_Name   string  `json:"firstName"`
-    Last_Name    string  `json:"lastName"`
-    Email        string  `json:"email"`
-    Password     string  `json:"password"`
-    Role         string  `json:"role"`
-    Info         string  `json:"info"`
+	Id         int    `json:"id"`
+	First_Name string `json:"firstName"`
+	Last_Name  string `json:"lastName"`
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+	Role       string `json:"role"`
+	Info       string `json:"info"`
 }
 
 // type ResponseUser struct {
@@ -47,14 +47,14 @@ type User struct {
 // }
 
 type FormInfo struct {
-    Title        string  `json:"title"`
-    User
+	Title string `json:"title"`
+	User
 }
 
 // type Document struct {
 //     Id           int     `json:"id"`
 //     User_Id      int     `json:"userId"`
-//     Name_Doc     string  `json:"name"`
+//     Doc_Name     string  `json:"name"`
 //     File         uint8   `json:"file"`
 //     Info         string  `json:"info"`
 // }
@@ -62,10 +62,9 @@ type FormInfo struct {
 // type Document struct {
 //     Id           int     `form:"id"`
 //     User_Id      string  `form:"userId"`
-//     Name_Doc     string  `form:"name"`
+//     Doc_Name     string  `form:"name"`
 //     File         []byte  `form:"file"`
 //     Info         string  `form:"info"`
-
 
 // //      Name  string `form:"name" binding:"required"`
 // //  Email string `form:"email" binding:"required,email"`
@@ -74,19 +73,19 @@ type FormInfo struct {
 // type Docs struct {
 //     // Id           int    `json:"id"`
 //     // UserId      string   `json:"userId"`
-//     // NameDoc     string    `json:"name"`
+//     // docName     string    `json:"name"`
 //     // File         []byte  `json:"file"`
 //     // Info         string    `json:"info"`
 
-//     Id           int   
-//     UserId      string  
-//     NameDoc     string   
-//     File         []byte  
-//     Info         string   
+//     Id           int
+//     UserId      string
+//     docName     string
+//     File         []byte
+//     Info         string
 // }
 
 // type SaveRequest struct {
-//     Documents    []Docs 
+//     Documents    []Docs
 // }
 
 // type Test struct {
@@ -110,53 +109,53 @@ func setDB(db *sql.DB) gin.HandlerFunc {
 }
 
 func CORSMiddleware() gin.HandlerFunc {
-    return func(context *gin.Context) {
-        origin := context.Request.Header.Get("Origin")
+	return func(context *gin.Context) {
+		origin := context.Request.Header.Get("Origin")
 
-        // fmt.Printf("Token created: %s\n", origin)
-        // context.Writer.Header().Set("Content-Type", "text/html; charset=utf-8")
-        context.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-        context.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-        // context.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-        context.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, Authorization, Cache-Control, Content-Disposition")
-        context.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
-        // context.Writer.Header().Set("Access-Control-Expose-Headers", "Set-Cookie")
-        // context.Writer.Header().Set("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS")
+		// fmt.Printf("Token created: %s\n", origin)
+		// context.Writer.Header().Set("Content-Type", "text/html; charset=utf-8")
+		context.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+		context.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		// context.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		context.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, Authorization, Cache-Control, Content-Disposition")
+		context.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
+		// context.Writer.Header().Set("Access-Control-Expose-Headers", "Set-Cookie")
+		// context.Writer.Header().Set("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS")
 
-        if context.Request.Method == "OPTIONS" {
-            context.AbortWithStatus(204)
-            return
-        }
+		if context.Request.Method == "OPTIONS" {
+			context.AbortWithStatus(204)
+			return
+		}
 
-        context.Next()
-    }
+		context.Next()
+	}
 }
 
 func connectDB() *sql.DB {
-    cfg := mysql.Config{
-        User:   "freedb_user_go",
-        Passwd: "kVjXrPrT?*tF*9d",
-        Net:    "tcp",
-        Addr:   "sql.freedb.tech",
-        DBName: "freedb_MySqlDB",
-        AllowNativePasswords: true,
-    }
+	cfg := mysql.Config{
+		User:                 "freedb_user_go",
+		Passwd:               "kVjXrPrT?*tF*9d",
+		Net:                  "tcp",
+		Addr:                 "sql.freedb.tech",
+		DBName:               "freedb_MySqlDB",
+		AllowNativePasswords: true,
+	}
 
-    db, err := sql.Open("mysql", cfg.FormatDSN())
-     
-    if err != nil {
-        panic(err)
-    } 
+	db, err := sql.Open("mysql", cfg.FormatDSN())
 
-    pingErr := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
-    if pingErr != nil {
-        log.Fatal(pingErr)
-    }
+	pingErr := db.Ping()
 
-    fmt.Println("Connected!")
+	if pingErr != nil {
+		log.Fatal(pingErr)
+	}
 
-    return db
+	fmt.Println("Connected!")
+
+	return db
 }
 
 // Add a new global variable for the secret key
@@ -164,45 +163,44 @@ var secretKey = []byte("your-secret-key")
 var loggedInUser string
 
 func main() {
-    db := connectDB()
-    defer db.Close()    
+	db := connectDB()
+	defer db.Close()
 
-    server := gin.Default()
-    server.Use(setDB(db))
-    server.Use(CORSMiddleware())
-    // server.Use(cors.Default())
+	server := gin.Default()
+	server.Use(setDB(db))
+	server.Use(CORSMiddleware())
+	// server.Use(cors.Default())
 
-    server.LoadHTMLGlob("templates/*")
-    server.Static("/static", "./static")
+	server.LoadHTMLGlob("templates/*")
+	server.Static("/static", "./static")
 
-    server.GET("/login", func(context *gin.Context) {
-        context.HTML(http.StatusOK, "login.html", nil)
-    })
-    server.POST("/login", handleLogin)
+	server.GET("/login", func(context *gin.Context) {
+		context.HTML(http.StatusOK, "login.html", nil)
+	})
+	server.POST("/login", handleLogin)
 
-    server.GET("/logout", func(context *gin.Context) {
-        loggedInUser = ""
-        context.SetCookie("token", "", -1, "/", "localhost", false, true)
-        context.Redirect(http.StatusSeeOther, "/")
-    })
+	server.GET("/logout", func(context *gin.Context) {
+		loggedInUser = ""
+		context.SetCookie("token", "", -1, "/", "localhost", false, true)
+		context.Redirect(http.StatusSeeOther, "/")
+	})
 
-    server.GET("/register", func(context *gin.Context) {
-        context.HTML(http.StatusOK, "form.html", gin.H{
-            "Title": "Register",
-        })
-    })
-    server.POST("/register", registerUser)
+	server.GET("/register", func(context *gin.Context) {
+		context.HTML(http.StatusOK, "form.html", gin.H{
+			"Title": "Register",
+		})
+	})
+	server.POST("/register", registerUser)
 
+	// server.GET("/documents/createNew", handleCreate)
 
-    // server.GET("/documents/createNew", handleCreate)
+	// server.POST("/documents/save", handleSave)
 
-    // server.POST("/documents/save", handleSave)
+	documents.Routes(server, authenticateMiddleware)
+	user.Routes(server, authenticateMiddleware)
+	record.Routes(server, authenticateMiddleware)
 
-    documents.Routes(server, authenticateMiddleware)
-    user.Routes(server, authenticateMiddleware)
-    record.Routes(server, authenticateMiddleware)
-
-    // server.GET("/", func(c *gin.Context) {
+	// server.GET("/", func(c *gin.Context) {
 	// 	c.HTML(http.StatusOK, "users.html", gin.H{
 	// 		// "Todos":    todos,
 	// 		"LoggedIn": loggedInUser != "",
@@ -211,44 +209,41 @@ func main() {
 	// 	})
 	// })
 
+	server.GET("/", func(context *gin.Context) {
+		context.Redirect(http.StatusMovedPermanently, "/users")
+	})
 
-    server.GET("/", func(context *gin.Context) {
-        context.Redirect(http.StatusMovedPermanently, "/users")
-    })
+	// // server.GET("/", func(context *gin.Context) {
+	// //     context.Redirect(http.StatusMovedPermanently, "/login")
+	// // })
 
-    // // server.GET("/", func(context *gin.Context) {
-    // //     context.Redirect(http.StatusMovedPermanently, "/login")
-    // // })
+	// // server.GET("/users", authenticateMiddleware, getUsers)
+	// server.GET("/users", authenticateMiddleware, getUsersPage)
+	// server.GET("/user/:id", authenticateMiddleware, getUserById)
 
-    // // server.GET("/users", authenticateMiddleware, getUsers)
-    // server.GET("/users", authenticateMiddleware, getUsersPage)
-    // server.GET("/user/:id", authenticateMiddleware, getUserById)
+	// server.GET("/newUser", authenticateMiddleware, func(context *gin.Context) {
+	//     context.HTML(http.StatusOK, "form.html", gin.H{
+	//         "Title": "New User",
+	//     })
+	// })
+	// server.POST("/user", authenticateMiddleware, addUser)
 
-    // server.GET("/newUser", authenticateMiddleware, func(context *gin.Context) {
-    //     context.HTML(http.StatusOK, "form.html", gin.H{
-    //         "Title": "New User",
-    //     })
-    // })
-    // server.POST("/user", authenticateMiddleware, addUser)
+	// // server.PUT("/edit/:id", updateUserById)
+	// // server.GET("/edit/:id", getUserById)
+	// // server.POST("/edit/:id", updateUserById)
 
+	// server.PUT("/user/:id", authenticateMiddleware, updateUserById)
+	// server.POST("/user/:id", authenticateMiddleware, updateUserById)
 
-    // // server.PUT("/edit/:id", updateUserById)
-    // // server.GET("/edit/:id", getUserById)
-    // // server.POST("/edit/:id", updateUserById)
+	// server.DELETE("/delete/:id", authenticateMiddleware, deleteUserById)
+	// server.GET("/delete/:id", authenticateMiddleware, deleteUserById)
 
-    // server.PUT("/user/:id", authenticateMiddleware, updateUserById)
-    // server.POST("/user/:id", authenticateMiddleware, updateUserById)
-
-
-    // server.DELETE("/delete/:id", authenticateMiddleware, deleteUserById)
-    // server.GET("/delete/:id", authenticateMiddleware, deleteUserById)
-
-    server.Run(":8081") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")    
+	server.Run(":8081") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
 // func handleCreate(context *gin.Context) {
-// 	nameDoc := context.Query("nameDoc")
-//     textDoc := context.Query("textDoc")
+// 	docName := context.Query("docName")
+//     docText := context.Query("docText")
 
 //     var b bytes.Buffer
 //     pw := io.Writer(&b)
@@ -257,13 +252,12 @@ func main() {
 //     pdf := fpdf.New("P", "mm", "A4", "")
 //     pdf.AddPage()
 //     pdf.SetFont("Arial", "B", 16)
-//     pdf.Cell(40, 10, textDoc)
+//     pdf.Cell(40, 10, docText)
 
+//     fmt.Printf("handleCreate--------------11111111111---docName: %s\n", docName)
+//     fmt.Printf("handleCreate--------------11111111111---docText: %s\n",  docText)
 
-//     fmt.Printf("handleCreate--------------11111111111---nameDoc: %s\n", nameDoc)
-//     fmt.Printf("handleCreate--------------11111111111---textDoc: %s\n",  textDoc)
-
-//     // if err := pdf.OutputFileAndClose(nameDoc + ".pdf"); err != nil {
+//     // if err := pdf.OutputFileAndClose(docName + ".pdf"); err != nil {
 //     //     return
 //     // }
 
@@ -273,27 +267,20 @@ func main() {
 //         return
 //     }
 
-//     // if err := pdf.OutputAndClose(nameDoc + ".pdf"); err != nil {
+//     // if err := pdf.OutputAndClose(docName + ".pdf"); err != nil {
 //     //     return
 //     // }
 
 //     context.Writer.Header().Set("Content-Type", "application/pdf")
 
-
 //     resPDF, _ := io.ReadAll(pr)
 //     context.Writer.Write(resPDF)
 //     // w.Write(resPDF)
 
-
 //     // pdf.Output(context)
 //     // pdf.OutputFileAndClose()
 
-//     // context.File(nameDoc + ".pdf")
-
-
-
-
-
+//     // context.File(docName + ".pdf")
 
 //     // logUser := User{}
 
@@ -336,7 +323,6 @@ func main() {
 //  	return io.ReadAll(body)
 // }
 
-
 // func handleSave(context *gin.Context) {
 //     db := context.MustGet("DB").(*sql.DB)
 
@@ -357,10 +343,10 @@ func main() {
 //         document.File = byteContainer;
 
 //         document.User_Id = userId
-//         document.Name_Doc = names[index]
+//         document.Doc_Name = names[index]
 //         document.Info = info[index]
 
-//         result, err := db.Exec("insert into Documents (User_Id, Name_Doc, File, Info) values (?, ?, ?, ?)", document.User_Id, document.Name_Doc, document.File, document.Info)
+//         result, err := db.Exec("insert into Documents (User_Id, Doc_Name, File, Info) values (?, ?, ?, ?)", document.User_Id, document.Doc_Name, document.File, document.Info)
 
 //         if err != nil{
 //             panic(err)
@@ -383,26 +369,26 @@ func main() {
 // }
 
 func handleLogin(context *gin.Context) {
-    // email := context.PostForm("email")
+	// email := context.PostForm("email")
 	// password := context.PostForm("password")
 
-    logUser := User{}
+	logUser := User{}
 
-    if err := context.BindJSON(&logUser); err != nil {
-        return
-    }
+	if err := context.BindJSON(&logUser); err != nil {
+		return
+	}
 
-    users := user.GetUsers(context)
+	users := user.GetUsers(context)
 
-    fmt.Printf("users--------", users)
+	fmt.Printf("users--------", users)
 
-    idx := slices.IndexFunc(users, func(u user.User) bool { return u.Email == logUser.Email && u.Password == logUser.Password })
+	idx := slices.IndexFunc(users, func(u user.User) bool { return u.Email == logUser.Email && u.Password == logUser.Password })
 
-    // targetUser := sort.Find()
+	// targetUser := sort.Find()
 
-    // fmt.Printf("idx ", idx )
+	// fmt.Printf("idx ", idx )
 
-	if (idx != -1) {
+	if idx != -1 {
 		tokenString, err := createToken(logUser.Email)
 
 		if err != nil {
@@ -413,17 +399,16 @@ func handleLogin(context *gin.Context) {
 		loggedInUser = logUser.Email
 		fmt.Printf("Token created: %s\n", tokenString)
 		context.SetCookie("token", tokenString, 3600, "/", "localhost", false, true) // need to change form locahost on domain
-        // users[idx]
-        // context.JSON(http.StatusOK, tokenString)
-        // context.JSON(http.StatusOK, "Success")
+		// users[idx]
+		// context.JSON(http.StatusOK, tokenString)
+		// context.JSON(http.StatusOK, "Success")
 
+		// context.JSON(http.StatusOK, ResponseUser{ User_Id: users[idx].Id, Status: "Success" })
 
-        // context.JSON(http.StatusOK, ResponseUser{ User_Id: users[idx].Id, Status: "Success" })
-
-        context.JSON(http.StatusOK, gin.H{ "userId": users[idx].Id, "status": "Success" })
+		context.JSON(http.StatusOK, gin.H{"userId": users[idx].Id, "status": "Success"})
 
 		// context.Redirect(http.StatusSeeOther, "/")
-        // context.Redirect(http.StatusSeeOther, "/users")
+		// context.Redirect(http.StatusSeeOther, "/users")
 	} else {
 		context.String(http.StatusUnauthorized, "Invalid credentials")
 	}
@@ -437,21 +422,21 @@ func getRole(username string) string {
 }
 
 func createToken(username string) (string, error) {
-    // Create a new JWT token with claims
+	// Create a new JWT token with claims
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": username,                    // Subject (user identifier)
-		"iss": "todo-app",                  // Issuer
-		"aud": getRole(username),           // Audience (user role)
+		"sub": username,                         // Subject (user identifier)
+		"iss": "todo-app",                       // Issuer
+		"aud": getRole(username),                // Audience (user role)
 		"exp": time.Now().Add(time.Hour).Unix(), // Expiration time
-		"iat": time.Now().Unix(),                 // Issued at
+		"iat": time.Now().Unix(),                // Issued at
 	})
 
-    tokenString, err := claims.SignedString(secretKey)
-    if err != nil {
-        return "", err
-    }
+	tokenString, err := claims.SignedString(secretKey)
+	if err != nil {
+		return "", err
+	}
 
-  // Print information about the created token
+	// Print information about the created token
 	fmt.Printf("Token claims added: %+v\n", claims)
 	return tokenString, nil
 }
@@ -511,7 +496,7 @@ func verifyToken(tokenString string) (*jwt.Token, error) {
 //     }
 
 //     users := []User{}
-     
+
 //     for rows.Next() {
 //         user := User{}
 //         err := rows.Scan(&user.Id, &user.First_Name, &user.Last_Name, &user.Email, &user.Password, &user.Role, &user.Info)
@@ -563,7 +548,6 @@ func verifyToken(tokenString string) (*jwt.Token, error) {
 //     role := context.PostForm("role")
 //     info := context.PostForm("info")
 
-
 //     result, err := db.Exec("insert into Users (First_Name, Last_Name, Email, Password, Role, Info ) values (?, ?, ?, ?, ?, ?)", firstName, lastName, email, password, role, info)
 
 //     if err != nil{
@@ -588,11 +572,11 @@ func verifyToken(tokenString string) (*jwt.Token, error) {
 //     email := context.PostForm("email")
 //     password := context.PostForm("password")
 //     role := context.PostForm("role")
-//     info := context.PostForm("info") 
+//     info := context.PostForm("info")
 
 //     result, err := db.Exec("update Users set First_Name = ?, Last_Name = ?, Email = ?, Password = ?, Role = ?, Info = ? where id = ?",
 //         firstName, lastName, email, password, role, info, id)
-    
+
 //     if err != nil{
 //         panic(err)
 //     }
@@ -620,6 +604,6 @@ func verifyToken(tokenString string) (*jwt.Token, error) {
 // }
 
 func registerUser(context *gin.Context) {
-    user.AddUserInDB(context)
-    context.Redirect(http.StatusMovedPermanently, "/login")
+	user.AddUserInDB(context)
+	context.Redirect(http.StatusMovedPermanently, "/login")
 }
