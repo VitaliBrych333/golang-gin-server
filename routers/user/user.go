@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"database/sql"
 	"github.com/gin-gonic/gin"
+    "github.com/google/uuid"
 )
 
 type person struct {
@@ -16,6 +17,7 @@ type person struct {
 
 type User struct {
     Id           int     `json:"id"`
+    User_Id      string  `json:"userId"`
     First_Name   string  `json:"firstName"`
     Last_Name    string  `json:"lastName"`
     Email        string  `json:"email"`
@@ -109,7 +111,7 @@ func GetUsers(context *gin.Context) []User {
      
     for rows.Next() {
         user := User{}
-        err := rows.Scan(&user.Id, &user.First_Name, &user.Last_Name, &user.Email, &user.Password, &user.Role, &user.Info)
+        err := rows.Scan(&user.Id, &user.User_Id, &user.First_Name, &user.Last_Name, &user.Email, &user.Password, &user.Role, &user.Info)
 
         if err != nil {
             log.Fatalf("impossible to scan rows of query: %s", err)
@@ -137,7 +139,7 @@ func getUserById(context *gin.Context) {
     row := db.QueryRow("select * from Users where id = ?", id)
 
     form := FormInfo{}
-    err := row.Scan(&form.Id, &form.First_Name, &form.Last_Name, &form.Email, &form.Password, &form.Role, &form.Info)
+    err := row.Scan(&form.Id, &form.User_Id, &form.First_Name, &form.Last_Name, &form.Email, &form.Password, &form.Role, &form.Info)
 
     if err != nil {
         panic(err)
@@ -151,6 +153,7 @@ func getUserById(context *gin.Context) {
 func AddUserInDB(context *gin.Context) {
     db := context.MustGet("DB").(*sql.DB)
     newUser := User{}
+    userId := "user-" + uuid.New().String()
 
     if err := context.BindJSON(&newUser); err != nil {
         return
@@ -165,7 +168,7 @@ func AddUserInDB(context *gin.Context) {
 
     // result, err := db.Exec("insert into Users (First_Name, Last_Name, Email, Password, Role, Info ) values (?, ?, ?, ?, ?, ?)", firstName, lastName, email, password, role, info)
 
-    result, err := db.Exec("insert into Users (First_Name, Last_Name, Email, Password, Role, Info ) values (?, ?, ?, ?, ?, ?)", newUser.First_Name, newUser.Last_Name, newUser.Email, newUser.Password, newUser.Role, newUser.Info)
+    result, err := db.Exec("insert into Users (User_Id, First_Name, Last_Name, Email, Password, Role, Info ) values (?, ?, ?, ?, ?, ?, ?)", userId, newUser.First_Name, newUser.Last_Name, newUser.Email, newUser.Password, newUser.Role, newUser.Info)
 
     if err != nil{
         panic(err)
@@ -200,7 +203,7 @@ func updateUserById(context *gin.Context) {
     role := context.PostForm("role")
     info := context.PostForm("info") 
 
-    result, err := db.Exec("update Users set First_Name = ?, Last_Name = ?, Email = ?, Password = ?, Role = ?, Info = ? where id = ?",
+    result, err := db.Exec("update Users set First_Name = ?, Last_Name = ?, Email = ?, Password = ?, Role = ?, Info = ? where User_Id = ?",
         firstName, lastName, email, password, role, info, id)
     
     if err != nil{
@@ -217,7 +220,7 @@ func deleteUserById(context *gin.Context) {
     id := context.Param("id")
     db := context.MustGet("DB").(*sql.DB)
 
-    result, err := db.Exec("delete from Users where id = ?", id)
+    result, err := db.Exec("delete from Users where User_Id = ?", id)
 
     if err != nil{
         panic(err)

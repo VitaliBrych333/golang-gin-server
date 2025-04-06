@@ -33,6 +33,7 @@ type person struct {
 
 type User struct {
 	Id         int    `json:"id"`
+	User_Id    string `json:"userId"`
 	First_Name string `json:"firstName"`
 	Last_Name  string `json:"lastName"`
 	Email      string `json:"email"`
@@ -405,7 +406,7 @@ func handleLogin(context *gin.Context) {
 
 		// context.JSON(http.StatusOK, ResponseUser{ User_Id: users[idx].Id, Status: "Success" })
 
-		context.JSON(http.StatusOK, gin.H{"userId": users[idx].Id, "status": "Success"})
+		context.JSON(http.StatusOK, gin.H{"userId": users[idx].User_Id, "status": "Success"})
 
 		// context.Redirect(http.StatusSeeOther, "/")
 		// context.Redirect(http.StatusSeeOther, "/users")
