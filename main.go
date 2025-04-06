@@ -400,6 +400,7 @@ func handleLogin(context *gin.Context) {
 		loggedInUser = logUser.Email
 		fmt.Printf("Token created: %s\n", tokenString)
 		context.SetCookie("token", tokenString, 3600, "/", "localhost", false, true) // need to change form locahost on domain
+		// context.SetCookie("user_Id", users[idx].User_Id, 3600, "/", "localhost", false, true) // need to change form locahost on domain
 		// users[idx]
 		// context.JSON(http.StatusOK, tokenString)
 		// context.JSON(http.StatusOK, "Success")
