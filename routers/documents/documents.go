@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	// "encoding/json"
 	// "strings"
 
 	// "os"
@@ -15,7 +16,7 @@ import (
 	"github.com/gin-gonic/gin"
 	// "github.com/go-pdf/fpdf"
 	"github.com/google/uuid"
-	"github.com/signintech/gopdf"
+	// "github.com/signintech/gopdf"
 
 	// "github.com/signintech/pdft"
 	// "github.com/pdfcpu/pdfcpu/pkg/api"
@@ -36,7 +37,7 @@ type RespDocument struct {
 	Document_Name string      `json:"name"`
 	File          []byte      `json:"file"`
 	Info          string      `json:"info"`
-}
+} 
 
 type ReqDocument struct {
 	Id            int         `form:"id"`
@@ -125,13 +126,33 @@ type ReqSaveDocuments struct {
     Rotate           []Page            `json:"rotate"`
 }
 
+// type ReqCreateDoc struct {
+// 	Pages          any          `json:"pages"`
+// }
+
+
+// { "pages":
+//     { "1":
+//        { "content":
+// 			{ "text": [
+// 				{ "value": "Hello pdfcpu World!",
+// 					"anchor": "center",
+// 					"font": { 
+// 						"name": "Helvetica",
+// 						"size": 12
+// 				}   }
+// 				]
+//     } 	}   }
+// }
+
 func Routes(route *gin.Engine, authenticateMiddleware gin.HandlerFunc) {
 	documents := route.Group("documents")
 	{
 		documents.GET("", authenticateMiddleware, getDocuments)
 		documents.GET("/:id", authenticateMiddleware, getDocumentById)
 		// documents.GET("/create", authenticateMiddleware, handleCreate)
-		documents.GET("/create", handleCreate)
+		// documents.GET("/create", handleCreate)
+		documents.POST("/create", handleCreate)
 		// documents.POST("/saveDocuments", authenticateMiddleware, handleSaveDocuments)
 		documents.POST("/saveDocuments", handleSaveDocuments)
 		documents.POST("/saveActions", handleSaveActions)
@@ -166,92 +187,117 @@ func getDocuments(context *gin.Context) {
 }
 
 func handleCreate(context *gin.Context) {
-	// newId := uuid.New()
-	// docName := context.Query("documentName")
-	// docText := context.Query("documentText")
-	
+	mod := model.NewDefaultConfiguration()
+	fileBytes := readAll(context.Request.Body)
+	byteReader := bytes.NewReader(fileBytes)
+
 	var b bytes.Buffer
 	pw := io.Writer(&b)
 	pr := io.Reader(&b)
 
-	// pdf := fpdf.New("P", "mm", "A4", "")
-	// pdf.AddPage()
-	// pdf.SetFont("Arial", "B", 16)
-	// pdf.Cell(40, 10, docText)
+	create(io.ReadSeeker(nil), byteReader, pw, mod)
 
-	// // Print the generated UUID as a string
-	// fmt.Println("Generated UUID:", newId.String())
+	file := readAll(pr)
+	b.Reset()
 
-	// // Components of the UUID
-	// fmt.Printf("Version: %d\n", newId.Version())
-	// fmt.Printf("Variant: %d\n", newId.Variant())
-	// fmt.Printf("Timestamp: %d\n", newId.Time())
-	// fmt.Printf("Clock Sequence: %d\n", newId.ClockSequence())
+	context.Writer.Header().Set("Content-Type", "application/pdf")
+	context.Writer.Write(file)
+}
+
+// func handleCreate(context *gin.Context) {
+// 	// newId := uuid.New()
+// 	// docName := context.Query("documentName")
+// 	// docText := context.Query("documentText")
+	
+// 	var b bytes.Buffer
+// 	pw := io.Writer(&b)
+// 	pr := io.Reader(&b)
+
+// 	// pdf := fpdf.New("P", "mm", "A4", "")
+// 	// pdf.AddPage()
+// 	// pdf.SetFont("Arial", "B", 16)
+// 	// pdf.Cell(40, 10, docText)
+
+// 	// // Print the generated UUID as a string
+// 	// fmt.Println("Generated UUID:", newId.String())
+
+// 	// // Components of the UUID
+// 	// fmt.Printf("Version: %d\n", newId.Version())
+// 	// fmt.Printf("Variant: %d\n", newId.Variant())
+// 	// fmt.Printf("Timestamp: %d\n", newId.Time())
+// 	// fmt.Printf("Clock Sequence: %d\n", newId.ClockSequence())
 	
 
-	// fmt.Printf("handleCreate--------------11111111111---docName: %s\n", docName)
-	// fmt.Printf("handleCreate--------------11111111111---docText: %s\n", docText)
+// 	// fmt.Printf("handleCreate--------------11111111111---docName: %s\n", docName)
+// 	// fmt.Printf("handleCreate--------------11111111111---docText: %s\n", docText)
 
-	// pdf := gopdf.GoPdf{}
-	// 	pdf.Start(gopdf.Config{ PageSize: *gopdf.PageSizeA4 })
-	// 	pdf.AddPage()
-	// 	// err := pdf.AddTTFFont("wts11", "../ttf/wts11.ttf")
-	// 	// if err != nil {
-	// 	// 	log.Print(err.Error())
-	// 	// 	return
-	// 	// }
+// 	// pdf := gopdf.GoPdf{}
+// 	// 	pdf.Start(gopdf.Config{ PageSize: *gopdf.PageSizeA4 })
+// 	// 	pdf.AddPage()
+// 	// 	// err := pdf.AddTTFFont("wts11", "../ttf/wts11.ttf")
+// 	// 	// if err != nil {
+// 	// 	// 	log.Print(err.Error())
+// 	// 	// 	return
+// 	// 	// }
 
-	// 	// err = pdf.SetFont("wts11", "", 14)
-	// 	// if err != nil {
-	// 	// 	log.Print(err.Error())
-	// 	// 	return
-	// 	// }
+// 	// 	// err = pdf.SetFont("wts11", "", 14)
+// 	// 	// if err != nil {
+// 	// 	// 	log.Print(err.Error())
+// 	// 	// 	return
+// 	// 	// }
 
-	// 	pdf.SetFont("Arial", "B", 16)
-	// 	pdf.Cell(nil, docText)
-	// 	pdf.WritePdf("eeeeeee.pdf")
+// 	// 	pdf.SetFont("Arial", "B", 16)
+// 	// 	pdf.Cell(nil, docText)
+// 	// 	pdf.WritePdf("eeeeeee.pdf")
 
-	// 	// pdf.WriteTo(pw)
+// 	// 	// pdf.WriteTo(pw)
 
-	// 	// num, err := pdf.WriteTo(pw)
-	// 	// if err != nil {
-	// 	// 	fmt.Println(err)
-	// 	// 	return
-	// 	// }
+// 	// 	// num, err := pdf.WriteTo(pw)
+// 	// 	// if err != nil {
+// 	// 	// 	fmt.Println(err)
+// 	// 	// 	return
+// 	// 	// }
 
-	pdf := gopdf.GoPdf{}
-	pdf.Start(gopdf.Config{ PageSize: *gopdf.PageSizeA4 })
-	pdf.AddPage()
-	err := pdf.AddTTFFont("wts11", "./fonts/wts11.ttf")
-	if err != nil {
-		fmt.Println("11111111Generated UUIDrrrrrrrrrrrrrrrrrrrr:", err)
-		return
-	}
+// 	pdf := gopdf.GoPdf{}
+// 	pdf.Start(gopdf.Config{ PageSize: *gopdf.PageSizeA4 })
+// 	pdf.AddPage()
+// 	err := pdf.AddTTFFont("wts11", "./fonts/wts11.ttf")
+// 	if err != nil {
+// 		fmt.Println("11111111Generated UUIDrrrrrrrrrrrrrrrrrrrr:", err)
+// 		return
+// 	}
 
-	err = pdf.SetFont("wts11", "", 14)
-	if err != nil {
-		fmt.Println("222222222Generated UUIDrrrrrrrrrrrrrrrrrrrr:", err)
-		return
-	}
-	pdf.Cell(nil, "rererrrrrrrrrrrrr")
+// 	err = pdf.SetFont("wts11", "", 14)
+// 	if err != nil {
+// 		fmt.Println("222222222Generated UUIDrrrrrrrrrrrrrrrrrrrr:", err)
+// 		return
+// 	}
+// 	pdf.Cell(nil, "rererrrrrrrrrrrrr")
 
-	// pdf.WritePdf("wwwwwllo.pdf")
+// 	// pdf.WritePdf("wwwwwllo.pdf")
 
-	pdf.WriteTo(pw)
+// 	pdf.WriteTo(pw)
 
-	// err := pdf.Output(pw)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
+// 	// err := pdf.Output(pw)
+// 	// if err != nil {
+// 	// 	fmt.Println(err)
+// 	// 	return
+// 	// }
 
-	// context.Writer.Header().Set("Content-Type", "application/pdf")
+// 	// context.Writer.Header().Set("Content-Type", "application/pdf")
 
-	file, _ := io.ReadAll(pr)
-	context.Writer.Write(file)
+// 	file, _ := io.ReadAll(pr)
+// 	context.Writer.Write(file)
 
-	// context.JSON(http.StatusOK, "")
-}
+
+
+// 	// mod := model.NewXRefTableEntryGen0()
+
+// 	// api.CreateFile()
+// 	// pdfcpu.
+
+// 	// context.JSON(http.StatusOK, "")
+// }
 
 
 
@@ -417,8 +463,7 @@ func handleSaveDocuments(context *gin.Context) {
 	objSave := ReqSaveDocuments{}
 
     if err := context.BindJSON(&objSave); err != nil {
-		fmt.Println("handleSaveDocuments-----------err------", err)
-        return
+		panic("Couldn't bind JSON! "+ err.Error())
     }
 
 	mod := model.NewDefaultConfiguration()
@@ -449,7 +494,7 @@ func handleSaveDocuments(context *gin.Context) {
 
 		id, err := result.LastInsertId()
 		if err != nil {
-			fmt.Printf("Save document: %v", err)
+			panic("Couldn't get last insert Id! "+ err.Error())
 		}
 
 		fmt.Println(id)  // id added
@@ -636,6 +681,14 @@ func handleSaveDocuments(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusCreated, strconv.Itoa(len(ids))+" document(s) were added in DB")
+}
+
+
+func create(rs io.ReadSeeker, rd io.Reader, w io.Writer, conf *model.Configuration) {
+	err := api.Create(rs, rd, w, conf)
+	if err != nil {
+		panic("Couldn't create a pdf file! "+ err.Error())
+	}
 }
 
 func readAndValidate(rs io.ReadSeeker, conf *model.Configuration) *model.Context {
