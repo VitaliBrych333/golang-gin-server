@@ -152,7 +152,7 @@ func Routes(route *gin.Engine, authenticateMiddleware gin.HandlerFunc) {
 		documents.GET("/:id", authenticateMiddleware, getDocumentById)
 		// documents.GET("/create", authenticateMiddleware, handleCreate)
 		// documents.GET("/create", handleCreate)
-		documents.POST("/create", handleCreate)
+		documents.POST("/create", handleCreatePdfFromJSON)
 		// documents.POST("/saveDocuments", authenticateMiddleware, handleSaveDocuments)
 		documents.POST("/saveDocuments", handleSaveDocuments)
 		documents.POST("/saveActions", handleSaveActions)
@@ -186,7 +186,7 @@ func getDocuments(context *gin.Context) {
 	context.JSON(http.StatusOK, documents)
 }
 
-func handleCreate(context *gin.Context) {
+func handleCreatePdfFromJSON(context *gin.Context) {
 	mod := model.NewDefaultConfiguration()
 	fileBytes := readAll(context.Request.Body)
 	byteReader := bytes.NewReader(fileBytes)
