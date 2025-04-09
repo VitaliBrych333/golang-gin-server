@@ -2,32 +2,17 @@ package documents
 
 import (
 	"bytes"
-	"database/sql"
 	"fmt"
 	"io"
 	"log"
-	"net/http"
 	"strconv"
-	// "encoding/json"
-	// "strings"
-
-	// "os"
-
+	"net/http"
+	"database/sql"
 	"github.com/gin-gonic/gin"
-	// "github.com/go-pdf/fpdf"
 	"github.com/google/uuid"
-	// "github.com/signintech/gopdf"
-
-	// "github.com/signintech/pdft"
-	// "github.com/pdfcpu/pdfcpu/pkg/api"
-
-	// "github.com/pdfcpu/pdfcpu/pkg/log"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
-	// "github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
-	// "github.com/dslipak/pdf"
-	// "github.com/pkg/errors"
 )
 
 type RespDocument struct {
@@ -100,15 +85,6 @@ type EditAction struct {
 	Type             string            `json:"type"`
 	Value            EditActionValue   `json:"value"`
 }
-
-type ReqActions struct {
-    Edit_Actions     []EditAction      `json:"editActions"`
-    Rotate           []Page            `json:"rotate"`
-}
-
-
-
-
 type FileDocument struct {
 	// User_Id          string            `json:"userId"`
 	// Document_Id      string            `json:"documentId"`
@@ -131,12 +107,8 @@ func Routes(route *gin.Engine, authenticateMiddleware gin.HandlerFunc) {
 	{
 		documents.GET("", authenticateMiddleware, getDocuments)
 		documents.GET("/:id", authenticateMiddleware, getDocumentById)
-		// documents.GET("/create", authenticateMiddleware, handleCreate)
-		// documents.GET("/create", handleCreate)
-		documents.POST("/create", handleCreatePdfFromJSON)
-		// documents.POST("/saveDocuments", authenticateMiddleware, handleSaveDocuments)
-		documents.POST("/saveDocuments", handleSaveDocuments)
-		documents.POST("/saveActions", handleSaveActions)
+		documents.POST("/create", authenticateMiddleware, handleCreatePdfFromJSON)
+		documents.POST("/saveDocuments", authenticateMiddleware, handleSaveDocuments)
 	}
 }
 
@@ -185,103 +157,8 @@ func handleCreatePdfFromJSON(context *gin.Context) {
 	context.Writer.Write(file)
 }
 
-// func handleCreate(context *gin.Context) {
-// 	// newId := uuid.New()
-// 	// docName := context.Query("documentName")
-// 	// docText := context.Query("documentText")
+
 	
-// 	var b bytes.Buffer
-// 	pw := io.Writer(&b)
-// 	pr := io.Reader(&b)
-
-// 	// pdf := fpdf.New("P", "mm", "A4", "")
-// 	// pdf.AddPage()
-// 	// pdf.SetFont("Arial", "B", 16)
-// 	// pdf.Cell(40, 10, docText)
-
-// 	// // Print the generated UUID as a string
-// 	// fmt.Println("Generated UUID:", newId.String())
-
-// 	// // Components of the UUID
-// 	// fmt.Printf("Version: %d\n", newId.Version())
-// 	// fmt.Printf("Variant: %d\n", newId.Variant())
-// 	// fmt.Printf("Timestamp: %d\n", newId.Time())
-// 	// fmt.Printf("Clock Sequence: %d\n", newId.ClockSequence())
-	
-
-// 	// fmt.Printf("handleCreate--------------11111111111---docName: %s\n", docName)
-// 	// fmt.Printf("handleCreate--------------11111111111---docText: %s\n", docText)
-
-// 	// pdf := gopdf.GoPdf{}
-// 	// 	pdf.Start(gopdf.Config{ PageSize: *gopdf.PageSizeA4 })
-// 	// 	pdf.AddPage()
-// 	// 	// err := pdf.AddTTFFont("wts11", "../ttf/wts11.ttf")
-// 	// 	// if err != nil {
-// 	// 	// 	log.Print(err.Error())
-// 	// 	// 	return
-// 	// 	// }
-
-// 	// 	// err = pdf.SetFont("wts11", "", 14)
-// 	// 	// if err != nil {
-// 	// 	// 	log.Print(err.Error())
-// 	// 	// 	return
-// 	// 	// }
-
-// 	// 	pdf.SetFont("Arial", "B", 16)
-// 	// 	pdf.Cell(nil, docText)
-// 	// 	pdf.WritePdf("eeeeeee.pdf")
-
-// 	// 	// pdf.WriteTo(pw)
-
-// 	// 	// num, err := pdf.WriteTo(pw)
-// 	// 	// if err != nil {
-// 	// 	// 	fmt.Println(err)
-// 	// 	// 	return
-// 	// 	// }
-
-// 	pdf := gopdf.GoPdf{}
-// 	pdf.Start(gopdf.Config{ PageSize: *gopdf.PageSizeA4 })
-// 	pdf.AddPage()
-// 	err := pdf.AddTTFFont("wts11", "./fonts/wts11.ttf")
-// 	if err != nil {
-// 		fmt.Println("11111111Generated UUIDrrrrrrrrrrrrrrrrrrrr:", err)
-// 		return
-// 	}
-
-// 	err = pdf.SetFont("wts11", "", 14)
-// 	if err != nil {
-// 		fmt.Println("222222222Generated UUIDrrrrrrrrrrrrrrrrrrrr:", err)
-// 		return
-// 	}
-// 	pdf.Cell(nil, "rererrrrrrrrrrrrr")
-
-// 	// pdf.WritePdf("wwwwwllo.pdf")
-
-// 	pdf.WriteTo(pw)
-
-// 	// err := pdf.Output(pw)
-// 	// if err != nil {
-// 	// 	fmt.Println(err)
-// 	// 	return
-// 	// }
-
-// 	// context.Writer.Header().Set("Content-Type", "application/pdf")
-
-// 	file, _ := io.ReadAll(pr)
-// 	context.Writer.Write(file)
-
-
-
-// 	// mod := model.NewXRefTableEntryGen0()
-
-// 	// api.CreateFile()
-// 	// pdfcpu.
-
-// 	// context.JSON(http.StatusOK, "")
-// }
-
-
-
 
 
 func sqlGetDocumentById(db *sql.DB, id string) RespDocument {
@@ -365,7 +242,7 @@ func handleSaveDocuments(context *gin.Context) {
 	pw := io.Writer(&b)
 	pr := io.Reader(&b)
 
-	ids := []int{}
+	ids := make(map[int64]bool)
 	userId := objSave.User_Id
 
 	for _, document := range objSave.New_Documents {
@@ -384,16 +261,7 @@ func handleSaveDocuments(context *gin.Context) {
 		b.Reset()
 
 		result := sqlAddDocument(db, userId, document.Document_Name, file, document.Info)
-
-		id, err := result.LastInsertId()
-		if err != nil {
-			panic("Couldn't get last insert Id! "+ err.Error())
-		}
-
-		fmt.Println(id)  // id added
-		fmt.Println(result.RowsAffected())  // count affected rows
-
-		ids = append(ids, int(id))
+		ids = addAffectedId(result, ids)
 	}
 
 	originalDocsContext := make(map[string]*model.Context) // key - document id
@@ -443,16 +311,7 @@ func handleSaveDocuments(context *gin.Context) {
 				b.Reset()
 
 				result := sqlAddDocument(db, userId, newDocName, file, newDocInfo)
-
-				// id, err := result.LastInsertId()
-
-				// if err != nil {
-				// 	fmt.Printf("Save document: %v", err)
-				// }
-
-
-				fmt.Println("Create document-----------------result", result)
-
+				ids = addAffectedId(result, ids)
 			case "Create page":
 				var contextFrom *model.Context  
 
@@ -507,10 +366,7 @@ func handleSaveDocuments(context *gin.Context) {
 				b.Reset()
 
 				result := sqlUpdateFile(db, file, documentId)
-
-				fmt.Println("------------------page--------", result)
-
-			
+				ids = addAffectedId(result, ids)			
 			case "Delete document":
 				documentId := action.Value.Id				
 
@@ -521,9 +377,7 @@ func handleSaveDocuments(context *gin.Context) {
 				}
 
 				result := sqlDeleteDocument(db, documentId)
-
-			    fmt.Println("Delete document-----------------result", result)
-
+				ids = addAffectedId(result, ids)
 			case "Delete page":
 				documentId := action.Value.Id
 				numPage := action.Value.Page.Num_Page
@@ -541,16 +395,13 @@ func handleSaveDocuments(context *gin.Context) {
 				b.Reset()
 
 				result := sqlUpdateFile(db, file, documentId)
-
-			    fmt.Println("Delete page-----------------result", result)
+			    ids = addAffectedId(result, ids)
 			case "Rename":
 				documentId := action.Value.Id
 				result := sqlUpdateDocumentName(db, action.Value.Name, documentId)
-
-			    fmt.Println("Rename-------------result", result)
+			    ids = addAffectedId(result, ids)
 			default:
-				// panic("Do not support operation type!")
-				fmt.Println("Do not support operation type!")
+				panic("Do not support operation type!")
 		}
 	}
 
@@ -569,11 +420,10 @@ func handleSaveDocuments(context *gin.Context) {
 		b.Reset()
 
 		result := sqlUpdateFile(db, file, documentId)
-
-		fmt.Println("result rotate!", result)
+		ids = addAffectedId(result, ids)
 	}
 
-	context.JSON(http.StatusCreated, strconv.Itoa(len(ids))+" document(s) were added in DB")
+	context.JSON(http.StatusCreated, strconv.Itoa(len(ids))+" document(s) were affected in DB!")
 }
 
 
@@ -639,93 +489,15 @@ func readAll(r io.Reader) []byte {
 	return file
 }
 
+func addAffectedId(result sql.Result, ids map[int64]bool) map[int64]bool {
+	id, err := result.LastInsertId()
+	if err != nil {
+		panic("Couldn't get last affected Id! "+ err.Error())
+	}
 
+	if _, ok := ids[id]; !ok {
+		ids[id] = true
+	}
 
-
-
-
-
-
-
-
-func handleSaveActions(context *gin.Context) {
-	// db := context.MustGet("DB").(*sql.DB)
-    actions := ReqActions{}
-
-    if err := context.BindJSON(&actions); err != nil {
-        return
-    }
-
-	fmt.Println("ssss---------%", actions)
-    // firstName := context.PostForm("first_name")
-    // lastName := context.PostForm("last_name")
-    // email := context.PostForm("email")
-    // password := context.PostForm("password")
-    // role := context.PostForm("role")
-    // info := context.PostForm("info")
-
-    // result, err := db.Exec("insert into Users (First_Name, Last_Name, Email, Password, Role, Info ) values (?, ?, ?, ?, ?, ?)", firstName, lastName, email, password, role, info)
-
-    // result, err := db.Exec("insert into Users (First_Name, Last_Name, Email, Password, Role, Info ) values (?, ?, ?, ?, ?, ?)", newUser.First_Name, newUser.Last_Name, newUser.Email, newUser.Password, newUser.Role, newUser.Info)
-
-    // if err != nil{
-    //     panic(err)
-    // }
-
-    // id, err := result.LastInsertId()
-    // if err != nil {
-    //     fmt.Printf("Add User: %v", err)
-    // }
-
-    // newUser.Id = int(id)
-
-    // fmt.Println(result.LastInsertId())  // id added
-    // fmt.Println(result.RowsAffected())  // count affected rows
-
-    context.JSON(http.StatusCreated, actions)
+	return ids
 }
-
-// func handleSave(context *gin.Context) {
-	// db := context.MustGet("DB").(*sql.DB)
-
-	// form, _ := context.MultipartForm()
-
-	// userIds := form.Value["userIds[]"]
-	// names := form.Value["names[]"]
-	// files := form.File["files[]"]
-	// info := form.Value["info[]"]
-
-	// ids := []int{}
-
-	// for index, userId := range userIds {
-	// 	document := ReqDocument{}
-
-	// 	fileContent, _ := files[index].Open()
-	// 	byteContainer, _ := io.ReadAll(fileContent)
-	// 	document.File = byteContainer
-
-	// 	document.User_Id = userId
-	// 	document.Doc_Name = names[index]
-	// 	document.Info = info[index]
-
-	// 	result, err := db.Exec("insert into Documents (User_Id, Doc_Name, File, Info) values (?, ?, ?, ?)", document.User_Id, document.Doc_Name, document.File, document.Info)
-
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-
-	// 	id, err := result.LastInsertId()
-
-	// 	if err != nil {
-	// 		fmt.Printf("Save document: %v", err)
-	// 	}
-
-	// 	// fmt.Println(result.LastInsertId())  // id added
-	// 	// fmt.Println(result.RowsAffected())  // count affected rows
-
-	// 	ids = append(ids, int(id))
-	// }
-
-	// context.JSON(http.StatusCreated, " document(s) were added in DB")
-	// context.JSON(http.StatusCreated, ids)
-// }

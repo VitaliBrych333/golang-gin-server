@@ -22,7 +22,6 @@ import (
 	"github.com/VitaliBrych333/golang-gin-server/routers/user"
 	"github.com/go-sql-driver/mysql"
 	"github.com/golang-jwt/jwt/v5"
-	// "github.com/go-pdf/fpdf"
 )
 
 // data definitions
