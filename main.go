@@ -175,9 +175,9 @@ func main() {
 	server.LoadHTMLGlob("templates/*")
 	server.Static("/static", "./static")
 
-	server.GET("/login", func(context *gin.Context) {
-		context.HTML(http.StatusOK, "login.html", nil)
-	})
+	// server.GET("/login", func(context *gin.Context) {
+	// 	context.HTML(http.StatusOK, "login.html", nil)
+	// })
 	server.POST("/login", handleLogin)
 
 	server.GET("/logout", func(context *gin.Context) {
@@ -448,7 +448,8 @@ func authenticateMiddleware(context *gin.Context) {
 	tokenString, err := context.Cookie("token")
 	if err != nil {
 		fmt.Println("Token missing in cookie")
-		context.Redirect(http.StatusSeeOther, "/login")
+		// context.Redirect(http.StatusSeeOther, "/login")
+		context.String(http.StatusUnauthorized, "Token missing in cookie")
 		context.Abort()
 		return
 	}
@@ -457,7 +458,10 @@ func authenticateMiddleware(context *gin.Context) {
 	token, err := verifyToken(tokenString)
 	if err != nil {
 		fmt.Printf("Token verification failed: %v\\n", err)
-		context.Redirect(http.StatusSeeOther, "/login")
+		// context.Redirect(http.StatusSeeOther, "/login")
+
+		context.String(http.StatusUnauthorized, "Token verification failed")
+
 		context.Abort()
 		return
 	}

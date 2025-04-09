@@ -126,25 +126,6 @@ type ReqSaveDocuments struct {
     Rotate           []Page            `json:"rotate"`
 }
 
-// type ReqCreateDoc struct {
-// 	Pages          any          `json:"pages"`
-// }
-
-
-// { "pages":
-//     { "1":
-//        { "content":
-// 			{ "text": [
-// 				{ "value": "Hello pdfcpu World!",
-// 					"anchor": "center",
-// 					"font": { 
-// 						"name": "Helvetica",
-// 						"size": 12
-// 				}   }
-// 				]
-//     } 	}   }
-// }
-
 func Routes(route *gin.Engine, authenticateMiddleware gin.HandlerFunc) {
 	documents := route.Group("documents")
 	{
@@ -368,94 +349,6 @@ func getDocumentById(context *gin.Context) {
 
 	context.JSON(http.StatusOK, doc)
 }
-
-// func handleSaveDocuments(context *gin.Context) {
-// 	db := context.MustGet("DB").(*sql.DB)
-
-// 	form, _ := context.MultipartForm()
-
-// 	userIds := form.Value["userIds[]"]
-// 	documentIds := form.Value["documentIds[]"]
-// 	documentNames := form.Value["documentNames[]"]
-// 	files := form.File["files[]"]
-// 	info := form.Value["info[]"]
-
-// 	ids := []int{}
-
-// 	fmt.Printf("documentIds: %d\n", documentIds)
-
-// 	for index, userId := range userIds {
-// 		newDocId := uuid.New()
-
-// 		// Print the generated UUID as a string
-// 		fmt.Println("Generated UUID:", newDocId.String())
-
-// 		// Components of the UUID
-// 		fmt.Printf("Version: %d\n", newDocId.Version())
-// 		fmt.Printf("Variant: %d\n", newDocId.Variant())
-// 		fmt.Printf("Timestamp: %d\n", newDocId.Time())
-// 		fmt.Printf("Clock Sequence: %d\n", newDocId.ClockSequence())
-
-// 		document := ReqDocument{}
-
-// 		fileContent, _ := files[index].Open()
-// 		byteContainer, _ := io.ReadAll(fileContent)
-// 		document.File = byteContainer
-
-// 		document.User_Id = userId
-// 		document.Document_Name = documentNames[index]
-// 		document.Info = info[index]
-
-// 		result, err := db.Exec("insert into Documents (User_Id, Document_Id, Document_Name, File, Info) values (?, ?, ?, ?, ?)", document.User_Id, "doc-" + newDocId.String(), document.Document_Name, document.File, document.Info)
-
-// 		if err != nil {
-// 			panic(err)
-// 		}
-
-// 		id, err := result.LastInsertId()
-
-// 		if err != nil {
-// 			fmt.Printf("Save document: %v", err)
-// 		}
-
-// 		// fmt.Println(result.LastInsertId())  // id added
-// 		// fmt.Println(result.RowsAffected())  // count affected rows
-
-// 		ids = append(ids, int(id))
-// 	}
-
-// 	context.JSON(http.StatusCreated, strconv.Itoa(len(ids))+" document(s) were added in DB")
-// 	// context.JSON(http.StatusCreated, ids)
-// }
-
-// func NewFromBytes(pdfBytes []byte, config Config) (gp *GoPdf) {
-// 	gp = new(GoPdf)
-// 	gp.Start(config)
-
-// 	rs := io.ReadSeeker(bytes.NewReader(pdfBytes))
-
-// 	gp.fpdi.SetSourceStream(&rs)
-
-// 	templateID := gp.fpdi.ImportPage(1, "/MediaBox")
-// 	pageSizes := gp.fpdi.GetPageSizes()
-
-// 	for i := 1; i < len(pageSizes); i++ {
-// 		gp.AddPage()
-
-// 		if i > 1 {
-// 			templateID = gp.fpdi.ImportPage(i, "/MediaBox")
-// 		}
-
-// 		gp.fpdi.UseTemplate(
-// 			templateID,
-// 			0,
-// 			0,
-// 			pageSizes[i]["/MediaBox"]["w"],
-// 			pageSizes[i]["/MediaBox"]["h"])
-// 	}
-
-// 	return gp
-// }
 
 func handleSaveDocuments(context *gin.Context) {
 	db := context.MustGet("DB").(*sql.DB)
