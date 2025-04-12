@@ -265,6 +265,24 @@ func handleSaveDocuments(context *gin.Context) {
 	}
 
 	originalDocsContext := make(map[string]*model.Context) // key - document id
+	createDocIds := make(map[string]bool) // int - count changes for doc (for cache when deleting action)
+
+	for _, action := range objSave.Edit_Actions {
+		switch(action.Type) {
+			case "Create document":
+				for _, page := range action.Value.Doc.Pages {
+					checkCreateDocId(createDocIds, page.Original_Document_Id)
+				}
+			case "Create page":
+				checkCreateDocId(createDocIds, action.Value.Id)
+				checkCreateDocId(createDocIds, action.Value.Page.Original_Document_Id)
+			case "Delete document":
+			case "Delete page":
+			case "Rename":
+			default:
+				panic("Do not support operation type!")
+		}
+	}
 
 	for _, action := range objSave.Edit_Actions {
 		switch(action.Type) {
@@ -289,10 +307,6 @@ func handleSaveDocuments(context *gin.Context) {
 						byteReaderFrom := bytes.NewReader(docFrom.File)
 						contextFrom = readAndValidate(byteReaderFrom, mod)
 					}
-
-					// if _, ok := originalDocsContext[documentId]; !ok {
-					// 	originalDocsContext[documentId] = contextTo
-					// }
 
 					if rotate != 0 {
 						rotatePages(contextFrom, map[int]bool{ originalNumPage: true }, rotate)
@@ -368,12 +382,14 @@ func handleSaveDocuments(context *gin.Context) {
 				result := sqlUpdateFile(db, file, documentId)
 				ids = addAffectedId(result, ids)			
 			case "Delete document":
-				documentId := action.Value.Id				
+				documentId := action.Value.Id
 
-				if _, ok := originalDocsContext[documentId]; !ok {
-					doc := sqlGetDocumentById(db, documentId)
-					byteReader := bytes.NewReader(doc.File)
-					originalDocsContext[documentId] = readAndValidate(byteReader, mod)
+				if _, ok := createDocIds[documentId]; ok {
+					if _, ok := originalDocsContext[documentId]; !ok {
+						doc := sqlGetDocumentById(db, documentId)
+						byteReader := bytes.NewReader(doc.File)
+						originalDocsContext[documentId] = readAndValidate(byteReader, mod)
+					}
 				}
 
 				result := sqlDeleteDocument(db, documentId)
@@ -385,9 +401,11 @@ func handleSaveDocuments(context *gin.Context) {
 				doc := sqlGetDocumentById(db, documentId)
 				byteReader := bytes.NewReader(doc.File)
 
-				if _, ok := originalDocsContext[documentId]; !ok {					
-					originalDocsContext[documentId] = readAndValidate(byteReader, mod)
-				}				
+				if _, ok := createDocIds[documentId]; ok {
+					if _, ok := originalDocsContext[documentId]; !ok {					
+						originalDocsContext[documentId] = readAndValidate(byteReader, mod)
+					}	
+				}
 
 				removePages(byteReader, pw, []string{strconv.Itoa(numPage)}, mod)
 
@@ -487,6 +505,12 @@ func readAll(r io.Reader) []byte {
 	}
 
 	return file
+}
+
+func checkCreateDocId(createDocIds map[string]bool, id string) {
+	if _, ok := createDocIds[id]; !ok {
+		createDocIds[id] = true
+	}
 }
 
 func addAffectedId(result sql.Result, ids map[int64]bool) map[int64]bool {
