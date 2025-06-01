@@ -279,6 +279,7 @@ func handleSaveDocuments(context *gin.Context) {
 			case "Delete document":
 			case "Delete page":
 			case "Rename":
+			case "Update properties":
 			default:
 				panic("Do not support operation type!")
 		}
@@ -418,6 +419,8 @@ func handleSaveDocuments(context *gin.Context) {
 				documentId := action.Value.Id
 				result := sqlUpdateDocumentName(db, action.Value.Name, documentId)
 			    ids = addAffectedId(result, ids)
+			case "Update properties":
+				// TODO:
 			default:
 				panic("Do not support operation type!")
 		}
