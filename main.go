@@ -118,9 +118,9 @@ func CORSMiddleware() gin.HandlerFunc {
 		context.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		// context.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		context.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, Authorization, Cache-Control, Content-Disposition")
-		context.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
+		// context.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
 		// context.Writer.Header().Set("Access-Control-Expose-Headers", "Set-Cookie")
-		// context.Writer.Header().Set("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS")
+		context.Writer.Header().Set("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS")
 
 		if context.Request.Method == "OPTIONS" {
 			context.AbortWithStatus(204)

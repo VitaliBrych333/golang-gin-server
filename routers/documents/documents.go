@@ -15,13 +15,20 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 )
 
+type Info struct {
+    Comments      string      `json:"comments"`
+    Author        string      `json:"author"`
+	Date_Created  string      `json:"dateCreated"`
+	Date_Modified string      `json:"dateModified"`
+}
+
 type RespDocument struct {
 	Id            int         `json:"id"`
 	User_Id       string      `json:"userId"`
 	Document_Id   string      `json:"documentId"`
 	Document_Name string      `json:"name"`
 	File          []byte      `json:"file"`
-	Info          string      `json:"info"`
+	Info          Info        `json:"info"`
 } 
 
 type ReqDocument struct {
@@ -30,7 +37,7 @@ type ReqDocument struct {
 	Document_Id   string      `form:"documentId"`
 	Document_Name string      `form:"name"`
 	File          []byte      `form:"file"`
-	Info          string      `form:"info"`
+	Info          Info        `form:"info"`
 
 }
 type PageInfo struct {
@@ -90,7 +97,7 @@ type FileDocument struct {
 	// Document_Id      string            `json:"documentId"`
 	Id               string            `json:"id"`
 	Document_Name    string            `json:"name"`
-	Info             string            `json:"info"`
+	Info             Info              `json:"info"`
 	File             []byte            `json:"file"`
 	Pages            []PageInfo        `json:"pages"`
 }
@@ -125,7 +132,32 @@ func getDocuments(context *gin.Context) {
 
 	for rows.Next() {
 		doc := RespDocument{}
-		err := rows.Scan(&doc.Id, &doc.User_Id, &doc.Document_Id, &doc.Document_Name, &doc.File, &doc.Info)
+		// info := Info{}
+
+		var comments sql.NullString
+		var author sql.NullString
+		var dateCreated sql.NullString
+		var dateModified sql.NullString
+
+		// err := rows.Scan(&info.Comments, &info.Author, &doc.Document_Id, &doc.Document_Name, &doc.File, &doc.Info)
+		// 
+		err := rows.Scan(&doc.Id, &doc.User_Id, &doc.Document_Id, &doc.Document_Name, &doc.File, &comments, &author, &dateCreated, &dateModified)
+
+		if comments.Valid {
+			doc.Info.Comments = comments.String
+		}
+
+		if author.Valid {
+			doc.Info.Author = author.String
+		}
+
+		if dateCreated.Valid {
+			doc.Info.Date_Created = dateCreated.String
+		}
+
+		if dateModified.Valid {
+			doc.Info.Date_Modified = dateModified.String
+		}
 
 		if err != nil {
 			log.Fatalf("impossible to scan rows of query: %s", err)
@@ -165,7 +197,7 @@ func sqlGetDocumentById(db *sql.DB, id string) RespDocument {
 	row := db.QueryRow("select * from Documents where Document_Id = ?", id)
 
 	doc := RespDocument{}
-	err := row.Scan(&doc.Id, &doc.User_Id, &doc.Document_Id, &doc.Document_Name, &doc.File, &doc.Info)
+	err := row.Scan(&doc.Id, &doc.User_Id, &doc.Document_Id, &doc.Document_Name, &doc.File, &doc.Info.Comments, &doc.Info.Author, &doc.Info.Date_Created, &doc.Info.Date_Modified)
 
 	if err != nil {
 		panic("SQL couldn't get a document by Id! " + err.Error())
@@ -174,9 +206,9 @@ func sqlGetDocumentById(db *sql.DB, id string) RespDocument {
 	return doc
 }
 
-func sqlAddDocument(db *sql.DB, userId string, docName string, file []byte, info string) sql.Result {
+func sqlAddDocument(db *sql.DB, userId string, docName string, file []byte, comments string, author string, dateCreated string, dateModified string) sql.Result {
 	docId := "doc-" + uuid.New().String()
-	result, err := db.Exec("insert into Documents (User_Id, Document_Id, Document_Name, File, Info) values (?, ?, ?, ?, ?)", userId, docId, docName, file, info)
+	result, err := db.Exec("insert into Documents (User_Id, Document_Id, Document_Name, File, Comments, Author, Date_Created, Date_Modified) values (?, ?, ?, ?, ?, ?, ?, ?)", userId, docId, docName, file, comments, author, dateCreated, dateModified)
 
 	if err != nil {
 		panic("SQL couldn't add a document! " + err.Error())
@@ -260,7 +292,7 @@ func handleSaveDocuments(context *gin.Context) {
 		file := readAll(pr)
 		b.Reset()
 
-		result := sqlAddDocument(db, userId, document.Document_Name, file, document.Info)
+		result := sqlAddDocument(db, userId, document.Document_Name, file, document.Info.Comments, document.Info.Author, document.Info.Date_Created, document.Info.Date_Modified)
 		ids = addAffectedId(result, ids)
 	}
 
@@ -291,7 +323,7 @@ func handleSaveDocuments(context *gin.Context) {
 				var contextPages *model.Context
 
 				newDocName := action.Value.Doc.Name
-				newDocInfo := ""
+				// newDocInfo := ""
 
 				for i, page := range action.Value.Doc.Pages {
 					var contextFrom *model.Context
@@ -325,7 +357,7 @@ func handleSaveDocuments(context *gin.Context) {
 				file := readAll(pr)
 				b.Reset()
 
-				result := sqlAddDocument(db, userId, newDocName, file, newDocInfo)
+				result := sqlAddDocument(db, userId, newDocName, file, "test", "test", "2025-02-02", "2025-02-02")
 				ids = addAffectedId(result, ids)
 			case "Create page":
 				var contextFrom *model.Context  
