@@ -86,6 +86,7 @@ type EditActionValue struct {
 	Position_Index   int               `json:"positionIndex,omitempty"`
 	Doc              Document          `json:"doc,omitempty"`
 	Page             PageInfo          `json:"page,omitempty"`
+	Info             Info              `json:"info,omitempty"`
 }
 
 type EditAction struct {
@@ -141,6 +142,8 @@ func getDocuments(context *gin.Context) {
 
 		// err := rows.Scan(&info.Comments, &info.Author, &doc.Document_Id, &doc.Document_Name, &doc.File, &doc.Info)
 		// 
+
+		// err := rows.Scan(&doc.Id, &doc.User_Id, &doc.Document_Id, &doc.Document_Name, &doc.File, &doc.Info.Comments, &doc.Info.Author, &doc.Info.Date_Created, &doc.Info.Date_Modified)
 		err := rows.Scan(&doc.Id, &doc.User_Id, &doc.Document_Id, &doc.Document_Name, &doc.File, &comments, &author, &dateCreated, &dateModified)
 
 		if comments.Valid {
@@ -232,6 +235,16 @@ func sqlUpdateDocumentName(db *sql.DB, newName string, documentId string) sql.Re
 
 	if err != nil {
 		panic("SQL couldn't update name in document! " + err.Error())
+	}
+
+	return result
+}
+
+func sqlUpdateDocumentProperties(db *sql.DB, info Info, documentId string) sql.Result {
+	result, err := db.Exec("update Documents set Comments = ?, Author = ?, Date_Created = ?, Date_Modified = ? where Document_Id = ?", info.Comments, info.Author, info.Date_Created, info.Date_Modified, documentId)
+
+	if err != nil {
+		panic("SQL couldn't update properties in document! " + err.Error())
 	}
 
 	return result
@@ -452,7 +465,9 @@ func handleSaveDocuments(context *gin.Context) {
 				result := sqlUpdateDocumentName(db, action.Value.Name, documentId)
 			    ids = addAffectedId(result, ids)
 			case "Update properties":
-				// TODO:
+				documentId := action.Value.Id
+				result := sqlUpdateDocumentProperties(db, action.Value.Info, documentId)
+			    ids = addAffectedId(result, ids)
 			default:
 				panic("Do not support operation type!")
 		}
