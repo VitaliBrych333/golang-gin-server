@@ -70,7 +70,6 @@ type NewDocumentAction struct {
 }
 
 type NewPageAction struct {
-	// Id              string      `json:"id"`
 	Position_Index  int         `json:"positionIndex"`
 	Page            PageInfo    `json:"page"`
 }
@@ -94,8 +93,6 @@ type EditAction struct {
 	Value            EditActionValue   `json:"value"`
 }
 type FileDocument struct {
-	// User_Id          string            `json:"userId"`
-	// Document_Id      string            `json:"documentId"`
 	Id               string            `json:"id"`
 	Document_Name    string            `json:"name"`
 	Info             Info              `json:"info"`
