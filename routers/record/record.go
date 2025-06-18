@@ -51,8 +51,6 @@ func getRecords(context *gin.Context) {
         records = append(records, record)
     }
 
-    fmt.Printf("%#v", records)
-
     context.JSON(http.StatusOK, records)
 }
 

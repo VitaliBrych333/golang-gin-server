@@ -108,12 +108,12 @@ type ReqSaveDocuments struct {
 }
 
 func Routes(route *gin.Engine, authenticateMiddleware gin.HandlerFunc) {
-	documents := route.Group("documents")
+	documents := route.Group("documents", authenticateMiddleware)
 	{
-		documents.GET("", authenticateMiddleware, getDocuments)
-		documents.GET("/:id", authenticateMiddleware, getDocumentById)
-		documents.POST("/create", authenticateMiddleware, handleCreatePdfFromJSON)
-		documents.POST("/saveDocuments", authenticateMiddleware, handleSaveDocuments)
+		documents.GET("", getDocuments)
+		documents.GET("/:id", getDocumentById)
+		documents.POST("/create", handleCreatePdfFromJSON)
+		documents.POST("/saveDocuments", handleSaveDocuments)
 	}
 }
 
@@ -130,17 +130,12 @@ func getDocuments(context *gin.Context) {
 
 	for rows.Next() {
 		doc := RespDocument{}
-		// info := Info{}
 
 		var comments sql.NullString
 		var author sql.NullString
 		var dateCreated sql.NullString
 		var dateModified sql.NullString
 
-		// err := rows.Scan(&info.Comments, &info.Author, &doc.Document_Id, &doc.Document_Name, &doc.File, &doc.Info)
-		// 
-
-		// err := rows.Scan(&doc.Id, &doc.User_Id, &doc.Document_Id, &doc.Document_Name, &doc.File, &doc.Info.Comments, &doc.Info.Author, &doc.Info.Date_Created, &doc.Info.Date_Modified)
 		err := rows.Scan(&doc.Id, &doc.User_Id, &doc.Document_Id, &doc.Document_Name, &doc.File, &comments, &author, &dateCreated, &dateModified)
 
 		if comments.Valid {
@@ -333,7 +328,6 @@ func handleSaveDocuments(context *gin.Context) {
 				var contextPages *model.Context
 
 				newDocName := action.Value.Doc.Name
-				// newDocInfo := ""
 
 				for i, page := range action.Value.Doc.Pages {
 					var contextFrom *model.Context
