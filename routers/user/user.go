@@ -110,7 +110,7 @@ func AddUserInDB(context *gin.Context) {
         return
     }
 
-    result, err := db.Exec("insert into Users (User_Id, First_Name, Last_Name, Email, Password, Role, Info ) values (?, ?, ?, ?, ?, ?, ?)", userId, newUser.First_Name, newUser.Last_Name, newUser.Email, newUser.Password, newUser.Role, newUser.Info)
+    result, err := db.Exec("insert into Users (User_Id, First_Name, Last_Name, Email, Password, Role, Info) values (?, ?, ?, ?, ?, ?, ?)", userId, newUser.First_Name, newUser.Last_Name, newUser.Email, newUser.Password, newUser.Role, newUser.Info)
 
     if err != nil{
         panic(err)
