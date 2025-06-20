@@ -11,7 +11,6 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/VitaliBrych333/golang-gin-server/routers/documents"
-	// "golang-gin-server/routers/documents"
 	"github.com/VitaliBrych333/golang-gin-server/routers/record"
 	"github.com/VitaliBrych333/golang-gin-server/routers/user"
 )

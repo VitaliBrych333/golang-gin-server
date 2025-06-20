@@ -1,18 +1,8 @@
 package documents
 
 import (
-	// "bytes"
-	// "fmt"
-	// "io"
-	// "log"
-	// "strconv"
-	// "net/http"
 	"database/sql"
-	// "github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	// "github.com/pdfcpu/pdfcpu/pkg/api"
-	// "github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
-	// "github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 )
 
 
